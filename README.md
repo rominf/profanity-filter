@@ -56,7 +56,14 @@ Deep analysis detects profane words that are inflected from profane words in pro
 
 To get deep analysis functionality install additional libraries and dictionary for your language.
 
-Firstly, install `hunspell` and `hunspell-devel` packages with your system package manager. Then run (for English):
+Firstly, install `hunspell` and `hunspell-devel` packages with your system package manager.
+
+For Amazon Linux AMI run:
+```shell
+$ yum install hunspell
+```
+
+Then run (for English):
 ```shell
 $ pip install -U profanity-filter[deep-analysis]
 $ cd profanity_filter/data
@@ -83,7 +90,14 @@ pf.censor("oofucksoo")
 ## Multilingual support
 This library comes with multilingual support, which is enabled automatically after installing `polyglot` package and 
 it's requirements for language detection. See https://polyglot.readthedocs.io/en/latest/Installation.html for 
-instructions, then run:
+instructions.
+
+For Amazon Linux AMI run:
+```shell
+$ yum install libicu-devel
+```
+
+Then run:
 ```shell
 $ pip install -U profanity-filter[multilingual]
 ```

@@ -65,7 +65,7 @@ $ yum install hunspell
 
 Then run (for English):
 ```shell
-$ pip install -U profanity-filter[deep-analysis]
+$ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-deep-analysis.txt
 $ cd profanity_filter/data
 $ wget https://cgit.freedesktop.org/libreoffice/dictionaries/plain/en/en_US.aff
 $ wget https://cgit.freedesktop.org/libreoffice/dictionaries/plain/en/en_US.dic
@@ -99,7 +99,7 @@ $ yum install libicu-devel
 
 Then run:
 ```shell
-$ pip install -U profanity-filter[multilingual]
+$ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-multilingual.txt
 ```
 
 ### Add language
@@ -125,7 +125,7 @@ Next, we download dictionaries for deep analysis:
 For Russian and Ukrainian languages to achieve better results we suggest you to install `pymorphy2`.
 To install `pymorphy2` with Russian dictionary run:
 ```shell
-$ pip install -U profanity-filter[pymorphy2-ru]
+$ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-pymorphy2-ru.txt
 ```
 
 ### Usage

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "profanity-filter"
-version = "1.0.0"
+version = "1.0.3"
 description = "A Python library for detecting and filtering profanity"
 authors = ["Roman Inflianskas <infroma@gmail.com>"]
 license = "GPL-3.0+"
@@ -23,15 +23,7 @@ python = "^3.6"
 spacy = "^2.0"
 ordered-set = "^3.0"
 cached-property = "^1.5"
-hunspell_serializable = {git = "https://github.com/rominf/hunspell_serializable",optional = true}
-pymorphy2 = {git = "https://github.com/kmike/pymorphy2/",optional = true}
-pyffs = {git = "https://github.com/rominf/pyffs/",optional = true}
+ordered-set-stubs = "^0.1.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.8"
-
-[tool.poetry.extras]
-deep-analysis = ["hunspell", "hunspell_serializable", "pyffs", "python-Levenshtein", "regex"]
-multilingual = ["polyglot", "pycld2"]
-pymorphy2-ru = ["pymorphy2", "pymorphy2-dicts-ru"]
-pymorphy2-uk = ["pymorphy2", "pymorphy2-dicts-uk"]

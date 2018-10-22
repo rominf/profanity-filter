@@ -1,0 +1,2 @@
+polyglot==16.7.4
+pycld2==0.31

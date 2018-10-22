@@ -85,11 +85,11 @@ class ProfanityFilterError(Exception):
 
 
 Language = Optional[str]
-ProfaneWordDictionary = OrderedSet[str]
+ProfaneWordDictionary = 'OrderedSet[str]'
 ProfaneWordDictionaryAcceptable = Collection[str]
 ProfaneWordDictionaries = Dict[Language, ProfaneWordDictionary]
 ProfaneWordDictionariesAcceptable = Dict[Language, ProfaneWordDictionaryAcceptable]
-Languages = OrderedSet[Language]
+Languages = 'OrderedSet[Language]'
 LanguagesAcceptable = Collection[Language]
 Nlps = Dict[Language, spacy.language.Language]
 Morphs = Dict[Language, MorphAnalyzer]
@@ -463,7 +463,7 @@ class ProfanityFilter:
             result = result[:].merge()
         return result
 
-    def _get_spells(self, language: Language) -> OrderedSet[HunSpell]:
+    def _get_spells(self, language: Language) -> 'OrderedSet[HunSpell]':
         result = OrderedSet([DummyHunSpell()])
         if not self.deep_analysis:
             return result

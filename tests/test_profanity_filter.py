@@ -11,7 +11,7 @@ CLEAN_STATEMENT = "Hey there, I like chocolate too mate."
 
 
 def create_profane_word_dictionaries(**kwargs) -> ProfaneWordDictionaries:
-    return defaultdict(lambda: OrderedSet[str], **kwargs)
+    return defaultdict(lambda: 'OrderedSet[str]', **kwargs)
 
 
 EMPTY_PROFANE_WORD_DICTIONARY = create_profane_word_dictionaries()

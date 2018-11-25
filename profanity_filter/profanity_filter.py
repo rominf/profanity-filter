@@ -121,6 +121,8 @@ class ProfanityFilter:
                  morphs: Morphs = None,
                  nlps: Nlps = None,
                  spells: Spells = None):
+        self._clear_cache_disabled = True
+
         # Path to data dir
         self._BASE_DIR = Path(__file__).absolute().parent
         self._DATA_DIR = self._BASE_DIR / 'data'
@@ -164,6 +166,7 @@ class ProfanityFilter:
         # (include words that are not in the dictionary)
         self._words_with_no_profanity_inside: Dict[Config, Set[str]] = None
 
+        self._clear_cache_disabled = False
         self.clear_cache()
 
     # noinspection PyAttributeOutsideInit
@@ -178,9 +181,9 @@ class ProfanityFilter:
                morphs: Morphs = None,
                nlps: Nlps = None,
                spells: Spells = None):
+        self.censor_char = censor_char
         self.censor_whole_words = censor_whole_words
         self.custom_profane_word_dictionaries = custom_censor_dictionaries
-        self.censor_char = censor_char
         self.deep_analysis = deep_analysis
         self.extra_profane_word_dictionaries = extra_censor_dictionaries
         self.languages = languages
@@ -212,7 +215,7 @@ class ProfanityFilter:
         if len(value) != 1:
             raise ValueError("Censor char must be str of length 1")
         self._censor_char = value
-        del self.__dict__['_config']
+        self.clear_config_cache()
 
     @property
     def censor_whole_words(self) -> bool:
@@ -221,7 +224,7 @@ class ProfanityFilter:
     @censor_whole_words.setter
     def censor_whole_words(self, value: bool) -> None:
         self._censor_whole_words = value
-        del self.__dict__['_config']
+        self.clear_config_cache()
 
     @property
     def custom_profane_word_dictionaries(self) -> ProfaneWordDictionaries:
@@ -245,7 +248,7 @@ class ProfanityFilter:
     @deep_analysis.setter
     def deep_analysis(self, value: bool) -> None:
         self._deep_analysis = value
-        del self.__dict__['_config']
+        self.clear_config_cache()
 
     @property
     def extra_profane_word_dictionaries(self) -> ProfaneWordDictionaries:
@@ -271,9 +274,9 @@ class ProfanityFilter:
     @languages.setter
     def languages(self, value: LanguagesAcceptable) -> None:
         self._languages = OrderedSet(value)
-        del self.__dict__['languages_str']
+        self.clear_languages_str_cache()
         _ = self.languages_str
-        del self.__dict__['_config']
+        self.clear_config_cache()
         self.clear_cache()
         self.morphs = None
         self.nlps = None
@@ -291,7 +294,7 @@ class ProfanityFilter:
     @max_relative_distance.setter
     def max_relative_distance(self, value: float) -> None:
         self._max_relative_distance = value
-        del self.__dict__['_config']
+        self.clear_config_cache()
 
     @property
     def morphs(self) -> Morphs:
@@ -370,11 +373,30 @@ class ProfanityFilter:
                         DEEP_ANALYSIS_AVAILABLE = True
 
     def clear_cache(self) -> None:
+        if self._clear_cache_disabled:
+            return
+
         with suppress(KeyError):
             del self.__dict__['profane_word_dictionaries']
+
+        self._update_profane_word_dictionary_files()
         _ = self.profane_word_dictionaries
         self._censored_words = defaultdict(lambda: {})
         self._words_with_no_profanity_inside = defaultdict(lambda: set())
+
+    def clear_config_cache(self) -> None:
+        if self._clear_cache_disabled:
+            return
+
+        with suppress(KeyError):
+            del self.__dict__['_config']
+
+    def clear_languages_str_cache(self) -> None:
+        if self._clear_cache_disabled:
+            return
+
+        with suppress(KeyError):
+            del self.__dict__['languages_str']
 
     # noinspection PyAttributeOutsideInit
     def restore_profane_word_dictionaries(self) -> None:
@@ -394,6 +416,7 @@ class ProfanityFilter:
 
     def _load_profane_word_dictionaries(self) -> None:
         """Loads the dictionaries of profane words from files"""
+        self._update_profane_word_dictionary_files()
         self._censor_dictionaries = defaultdict(lambda: OrderedSet())
         for language, words_file in self._profane_word_dictionary_files.items():
             with open(words_file) as f:

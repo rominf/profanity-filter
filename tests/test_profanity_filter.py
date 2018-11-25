@@ -11,15 +11,22 @@ CLEAN_STATEMENT = "Hey there, I like chocolate too mate."
 
 
 def create_profane_word_dictionaries(**kwargs) -> ProfaneWordDictionaries:
-    return defaultdict(lambda: 'OrderedSet[str]', **kwargs)
-
-
-EMPTY_PROFANE_WORD_DICTIONARY = create_profane_word_dictionaries()
+    return defaultdict(lambda: OrderedSet(), **kwargs)
 
 
 @pytest.fixture
 def profanity_filter():
     return ProfanityFilter()
+
+
+@pytest.fixture
+def custom_profane_word_dictionaries():
+    return create_profane_word_dictionaries()
+
+
+@pytest.fixture
+def extra_profane_word_dictionaries():
+    return create_profane_word_dictionaries(en=OrderedSet())
 
 
 @pytest.fixture
@@ -66,8 +73,8 @@ def test_censor_char(profanity_filter):
     assert "Hey, I like unicorns, chocolate, oranges and man's blood, ####!" == profanity_filter.censor(TEST_STATEMENT)
 
 
-def test_custom_profane_word_dictionaries(profanity_filter):
-    assert EMPTY_PROFANE_WORD_DICTIONARY == profanity_filter.custom_profane_word_dictionaries
+def test_custom_profane_word_dictionaries(profanity_filter, custom_profane_word_dictionaries):
+    assert custom_profane_word_dictionaries == custom_profane_word_dictionaries
     # Testing pluralization here as well
     profanity_filter.custom_profane_word_dictionaries = {'en': ['unicorn', 'chocolate']}
     assert (create_profane_word_dictionaries(en=OrderedSet(['unicorn', 'chocolate'])) ==
@@ -78,8 +85,8 @@ def test_custom_profane_word_dictionaries(profanity_filter):
     assert 'Turd' in censored
 
 
-def test_extra_profane_word_dictionaries(profanity_filter):
-    assert EMPTY_PROFANE_WORD_DICTIONARY == profanity_filter.extra_profane_word_dictionaries
+def test_extra_profane_word_dictionaries(profanity_filter, extra_profane_word_dictionaries):
+    assert extra_profane_word_dictionaries == profanity_filter.extra_profane_word_dictionaries
     profanity_filter.extra_profane_word_dictionaries = {'en': ['hey', 'like']}
     assert (create_profane_word_dictionaries(en=OrderedSet(['hey', 'like'])) ==
             profanity_filter.extra_profane_word_dictionaries)
@@ -90,12 +97,12 @@ def test_extra_profane_word_dictionaries(profanity_filter):
     assert 'Turd' not in censored
 
 
-def test_restore_words(profanity_filter):
+def test_restore_words(profanity_filter, custom_profane_word_dictionaries, extra_profane_word_dictionaries):
     profanity_filter.custom_profane_word_dictionaries = {'en': ['cupcakes']}
     profanity_filter.extra_profane_word_dictionaries = {'en': ['dibs']}
     profanity_filter.restore_profane_word_dictionaries()
-    assert EMPTY_PROFANE_WORD_DICTIONARY == profanity_filter.custom_profane_word_dictionaries
-    assert EMPTY_PROFANE_WORD_DICTIONARY == profanity_filter.extra_profane_word_dictionaries
+    assert custom_profane_word_dictionaries == profanity_filter.custom_profane_word_dictionaries
+    assert extra_profane_word_dictionaries == profanity_filter.extra_profane_word_dictionaries
     profane_word_dictionaries = profanity_filter.profane_word_dictionaries
     assert 'dibs' not in profane_word_dictionaries['en']
     assert 'cupcakes' not in profane_word_dictionaries['en']
@@ -131,6 +138,7 @@ def test_deep_analysis(profanity_filter):
 
 
 def test_without_deep_analysis(profanity_filter):
+    profanity_filter.deep_analysis = False
     assert 'mulkku0' == profanity_filter.censor('mulkku0')
     assert 'oofuckoo' == profanity_filter.censor('oofuckoo')
     assert 'fuckfuck' == profanity_filter.censor('fuckfuck')

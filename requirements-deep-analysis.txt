@@ -2,4 +2,4 @@ hunspell==0.5.5
 git+https://github.com/rominf/hunspell_serializable@49c00fabf94cacf9e6a23a0cd666aac10cb1d491#egg=hunspell_serializable
 git+https://github.com/rominf/pyffs@6c805fbfd7771727138b169b32484b53c0b0fad1#egg=pyffs
 python-Levenshtein==0.12.0
-regex==2018.1.10
+regex==2019.03.12

@@ -124,6 +124,7 @@ def test_lemmatization(profanity_filter):
 @pytest.mark.skip_if_deep_analysis_is_disabled
 def test_deep_analysis(profanity_filter):
     assert 'duck' == profanity_filter.censor('duck')
+    assert '****' == profanity_filter.censor('sh1t')
     assert '*******' == profanity_filter.censor('mulkku0')
     assert '*******' == profanity_filter.censor('oofucko')
     assert '********' == profanity_filter.censor('fuckfuck')

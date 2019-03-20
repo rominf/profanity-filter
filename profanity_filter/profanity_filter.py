@@ -1,13 +1,14 @@
 import re
 from collections import defaultdict
-from contextlib import suppress
+from contextlib import suppress, contextmanager
 from copy import deepcopy
 from itertools import chain
 from math import floor
 from pathlib import Path
-from typing import Dict, Union, List, Tuple, Set, Optional, NamedTuple, Generator, Collection
+from typing import Dict, Union, List, Tuple, Set, Optional, NamedTuple, Generator, Collection, ContextManager
 
 import spacy
+import spacy.attrs
 import spacy.language
 import spacy.tokens
 from cached_property import cached_property
@@ -121,13 +122,12 @@ class ProfanityFilter:
                  morphs: Morphs = None,
                  nlps: Nlps = None,
                  spells: Spells = None):
-        self._clear_cache_disabled = True
-
         # Path to data dir
         self._BASE_DIR = Path(__file__).absolute().parent
         self._DATA_DIR = self._BASE_DIR / 'data'
 
         self._MAX_MAX_DISTANCE = 3
+        self._cache_clearing_disabled: bool = False
         self._censor_char: str = None
         self._censor_whole_words: bool = None
         self._custom_censor_dictionaries: ProfaneWordDictionaries = None
@@ -137,27 +137,13 @@ class ProfanityFilter:
         self._max_relative_distance: float = None
         self._morphs: Morphs = None
         self._nlps: Nlps = None
+        self._nlps_untouched: Nlps = None
         self._profane_word_dictionary_files: Dict[Language, str] = None
         self._spells: Spells = None
-
-        self.config(censor_char=censor_char,
-                    censor_whole_words=censor_whole_words,
-                    custom_censor_dictionaries=custom_censor_dictionaries,
-                    deep_analysis=deep_analysis,
-                    extra_censor_dictionaries=extra_censor_dictionaries,
-                    languages=languages,
-                    max_relative_distance=max_relative_distance,
-                    morphs=morphs,
-                    nlps=nlps,
-                    spells=spells)
 
         # For Levenshtein automata
         self._alphabet = set()
         self._trie = {}
-
-        # What to be censored - should not be modified by user
-        self._censor_dictionaries = None
-        self._load_profane_word_dictionaries()
 
         # Dict from profane word to censored word that is generated after censoring
         self._censored_words: Dict[Config, Dict[str, str]] = None
@@ -166,7 +152,23 @@ class ProfanityFilter:
         # (include words that are not in the dictionary)
         self._words_with_no_profanity_inside: Dict[Config, Set[str]] = None
 
-        self._clear_cache_disabled = False
+        # What to be censored - should not be modified by user
+        self._censor_dictionaries: ProfaneWordDictionaries = None
+
+        with self._disabled_cache_clearing():
+            # nlps argument is set to {} so that nlps are loaded after clear_cache which loads profane word dictionaries
+            self.config(censor_char=censor_char,
+                        censor_whole_words=censor_whole_words,
+                        custom_censor_dictionaries=custom_censor_dictionaries,
+                        deep_analysis=deep_analysis,
+                        extra_censor_dictionaries=extra_censor_dictionaries,
+                        languages=languages,
+                        max_relative_distance=max_relative_distance,
+                        morphs=morphs,
+                        nlps=nlps,
+                        spells=spells,
+                        )
+
         self.clear_cache()
 
     # noinspection PyAttributeOutsideInit
@@ -180,17 +182,21 @@ class ProfanityFilter:
                max_relative_distance: float = default_config.max_relative_distance,
                morphs: Morphs = None,
                nlps: Nlps = None,
-               spells: Spells = None):
+               spells: Spells = None,
+               ):
         self.censor_char = censor_char
         self.censor_whole_words = censor_whole_words
         self.custom_profane_word_dictionaries = custom_censor_dictionaries
         self.deep_analysis = deep_analysis
         self.extra_profane_word_dictionaries = extra_censor_dictionaries
-        self.languages = languages
         self.max_relative_distance = max_relative_distance
-        self.morphs = morphs
-        self.nlps = nlps
-        self.spells = spells
+        self._set_languages(languages, load_morphs=morphs is None, load_nlps=nlps is None, load_spells=spells is None)
+        if morphs is not None:
+            self.morphs = morphs
+        if nlps is not None:
+            self.nlps = nlps
+        if spells is not None:
+            self.spells = spells
 
     def censor(self, text: str) -> str:
         """Returns text with any profane words censored"""
@@ -273,14 +279,7 @@ class ProfanityFilter:
     # noinspection PyAttributeOutsideInit
     @languages.setter
     def languages(self, value: LanguagesAcceptable) -> None:
-        self._languages = OrderedSet(value)
-        self.clear_languages_str_cache()
-        _ = self.languages_str
-        self.clear_config_cache()
-        self.clear_cache()
-        self.morphs = None
-        self.nlps = None
-        self.spells = None
+        self._set_languages(value)
 
     @cached_property
     def languages_str(self) -> str:
@@ -321,16 +320,25 @@ class ProfanityFilter:
 
     @nlps.setter
     def nlps(self, value: Nlps) -> None:
+        def add_all_profane_words_as_special_case_to_not_split_them() -> None:
+            # noinspection PyShadowingNames
+            for language in nlps.keys():
+                for profane_word in self.profane_word_dictionaries[language]:
+                    nlps[language].tokenizer.add_special_case(profane_word, [{spacy.attrs.ORTH: profane_word}])
+
         self.clear_cache()
         if value is not None:
-            self._nlps = value
+            nlps = value
         else:
-            self._nlps = {}
+            nlps = {}
             for language in self.languages:
                 with suppress(OSError):
-                    self._nlps[language] = spacy.load(language, disable=['parser', 'ner'])
-            if not self._nlps:
+                    nlps[language] = spacy.load(language, disable=['parser', 'ner'])
+            if not nlps:
                 raise ProfanityFilterError("Couldn't load Spacy model for any of languages: " + self.languages_str)
+        self._nlps_untouched = deepcopy(nlps)
+        add_all_profane_words_as_special_case_to_not_split_them()
+        self._nlps = nlps
 
     @cached_property
     def profane_word_dictionaries(self) -> ProfaneWordDictionaries:
@@ -373,26 +381,26 @@ class ProfanityFilter:
                         DEEP_ANALYSIS_AVAILABLE = True
 
     def clear_cache(self) -> None:
-        if self._clear_cache_disabled:
+        if self._cache_clearing_disabled:
             return
 
         with suppress(KeyError):
             del self.__dict__['profane_word_dictionaries']
 
         self._update_profane_word_dictionary_files()
-        _ = self.profane_word_dictionaries
+        self._update_profane_word_dictionaries()
         self._censored_words = defaultdict(lambda: {})
         self._words_with_no_profanity_inside = defaultdict(lambda: set())
 
     def clear_config_cache(self) -> None:
-        if self._clear_cache_disabled:
+        if self._cache_clearing_disabled:
             return
 
         with suppress(KeyError):
             del self.__dict__['_config']
 
     def clear_languages_str_cache(self) -> None:
-        if self._clear_cache_disabled:
+        if self._cache_clearing_disabled:
             return
 
         with suppress(KeyError):
@@ -404,6 +412,26 @@ class ProfanityFilter:
         self.custom_profane_word_dictionaries = None
         self.extra_profane_word_dictionaries = None
 
+    @contextmanager
+    def _disabled_cache_clearing(self) -> ContextManager[None]:
+        self._cache_clearing_disabled = True
+        yield
+        self._cache_clearing_disabled = False
+
+    def _set_languages(self, value: LanguagesAcceptable, load_morphs: bool = True, load_nlps: bool = True,
+                       load_spells: bool = True) -> None:
+        self._languages = OrderedSet(value)
+        self.clear_languages_str_cache()
+        _ = self.languages_str
+        self.clear_config_cache()
+        self.clear_cache()
+        if load_morphs:
+            self.morphs = None
+        if load_nlps:
+            self.nlps = None
+        if load_spells:
+            self.spells = None
+
     def _update_profane_word_dictionary_files(self):
         # Paths to profane word dictionaries
         self._profane_word_dictionary_files = {}
@@ -413,6 +441,14 @@ class ProfanityFilter:
                 self._profane_word_dictionary_files[language] = profane_word_file
         if not self._profane_word_dictionary_files:
             raise ProfanityFilterError("Couldn't load profane words for any of languages: " + self.languages_str)
+
+    def _update_profane_word_dictionaries(self) -> None:
+        _ = self.profane_word_dictionaries
+        # Update nlps's tokenization special cases
+        if self.nlps is not None:
+            with self._disabled_cache_clearing():
+                self.nlps = self._nlps_untouched
+            self._cache_clearing_disabled = False
 
     def _load_profane_word_dictionaries(self) -> None:
         """Loads the dictionaries of profane words from files"""
@@ -499,11 +535,12 @@ class ProfanityFilter:
                 break
         return result
 
-    def _stems(self, language: Language, word: str) -> Set[str]:
+    def _stems(self, language: Language, word: str) -> 'OrderedSet[str]':
         spells = self._get_spells(language=language)
-        return {stem_bytes.decode(spell.get_dic_encoding()) for spell in spells for stem_bytes in spell.stem(word)}
+        return OrderedSet([stem_bytes.decode(spell.get_dic_encoding())
+                           for spell in spells for stem_bytes in spell.stem(word)])
 
-    def _normal_forms(self, language: Language, word: str) -> Set[str]:
+    def _normal_forms(self, language: Language, word: str) -> 'OrderedSet[str]':
         morphs = OrderedSet([DummyMorphAnalyzer])
         if PYMORPHY2_AVAILABLE:
             if language is None:
@@ -513,10 +550,10 @@ class ProfanityFilter:
                 with suppress(KeyError):
                     morphs = OrderedSet([self.morphs[language]])
                     break
-        return {morph.parse(word=word)[0].normal_form for morph in morphs}
+        return OrderedSet([morph.parse(word=word)[0].normal_form for morph in morphs])
 
-    def _lemmas(self, language: Language, word: Union[str, spacy.tokens.Token]) -> Set[str]:
-        result = set()
+    def _lemmas(self, language: Language, word: Union[str, spacy.tokens.Token]) -> 'OrderedSet[str]':
+        result = OrderedSet()
         if not word:
             return result
         try:
@@ -576,10 +613,12 @@ class ProfanityFilter:
         """
         lemmas = self._lemmas(word=word, language=language)
         if self.deep_analysis:
-            lemmas_only_letters = {self._keep_only_letters_or_dictionary_word(language=language, word=lemma)
-                                   for lemma in lemmas}
+            lemmas_only_letters = OrderedSet([
+                self._keep_only_letters_or_dictionary_word(language=language, word=lemma) for lemma in lemmas])
             if lemmas_only_letters != lemmas:
-                lemmas = set(chain(*(self._lemmas(word=lemma, language=language) for lemma in lemmas_only_letters)))
+                lemmas_only_letters = chain(
+                    *(self._lemmas(word=lemma, language=language) for lemma in lemmas_only_letters))
+                lemmas.update(lemmas_only_letters)
         # noinspection PyTypeChecker
         if self._has_no_profanity(lemmas):
             return word.text, True
@@ -598,7 +637,6 @@ class ProfanityFilter:
             for lemma in lemmas:
                 if self._is_dictionary_word(language=language, word=lemma):
                     return word.text, True
-            for lemma in lemmas:
                 automaton = LevenshteinAutomaton(tolerance=self._get_max_distance(len(lemma)),
                                                  query_word=lemma,
                                                  alphabet=self._alphabet)

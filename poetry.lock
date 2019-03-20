@@ -4,15 +4,26 @@ description = "Atomic file writes."
 name = "atomicwrites"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.2.1"
+version = "1.3.0"
 
 [[package]]
 category = "dev"
 description = "Classes Without Boilerplate"
 name = "attrs"
 optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "19.1.0"
+
+[[package]]
+category = "main"
+description = "('The Blis BLAS-like linear algebra library, as a self-contained C-extension.',)"
+name = "blis"
+optional = false
 python-versions = "*"
-version = "18.2.0"
+version = "0.2.4"
+
+[package.dependencies]
+numpy = ">=1.15.0"
 
 [[package]]
 category = "main"
@@ -28,7 +39,7 @@ description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
 optional = false
 python-versions = "*"
-version = "2018.10.15"
+version = "2019.3.9"
 
 [[package]]
 category = "main"
@@ -45,7 +56,7 @@ marker = "sys_platform == \"win32\""
 name = "colorama"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.4.0"
+version = "0.4.1"
 
 [[package]]
 category = "main"
@@ -57,77 +68,43 @@ version = "2.0.2"
 
 [[package]]
 category = "main"
-description = "Cython implementation of Toolz: High performance functional utilities"
-name = "cytoolz"
-optional = false
-python-versions = "*"
-version = "0.9.0.1"
-
-[package.dependencies]
-toolz = ">=0.8.0"
-
-[[package]]
-category = "main"
-description = "serialize all of python"
-name = "dill"
-optional = false
-python-versions = "*"
-version = "0.2.8.2"
-
-[[package]]
-category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
 optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "2.8"
+
+[[package]]
+category = "main"
+description = "An implementation of JSON Schema validation for Python"
+name = "jsonschema"
+optional = false
 python-versions = "*"
-version = "2.7"
+version = "2.6.0"
 
 [[package]]
 category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
-python-versions = "*"
-version = "4.3.0"
-
-[package.dependencies]
-six = ">=1.0.0,<2.0.0"
+python-versions = ">=3.4"
+version = "6.0.0"
 
 [[package]]
 category = "main"
-description = "MessagePack (de)serializer."
-name = "msgpack"
-optional = false
-python-versions = "*"
-version = "0.5.6"
-
-[[package]]
-category = "main"
-description = "Numpy data serialization using msgpack"
-name = "msgpack-numpy"
-optional = false
-python-versions = "*"
-version = "0.4.3.2"
-
-[package.dependencies]
-msgpack = ">=0.3.0"
-numpy = ">=1.9.0"
-
-[[package]]
-category = "main"
-description = "Cython bindings for MurmurHash2"
+description = "Cython bindings for MurmurHash"
 name = "murmurhash"
 optional = false
 python-versions = "*"
-version = "1.0.1"
+version = "1.0.2"
 
 [[package]]
 category = "main"
-description = "NumPy: array processing for numbers, strings, records, and objects."
+description = "NumPy is the fundamental package for array computing with Python."
 name = "numpy"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
-version = "1.15.4"
+version = "1.16.2"
 
 [[package]]
 category = "main"
@@ -135,7 +112,7 @@ description = "A MutableSet that remembers its order, so that every entry has an
 name = "ordered-set"
 optional = false
 python-versions = ">=2.7"
-version = "3.0.2"
+version = "3.1"
 
 [[package]]
 category = "main"
@@ -159,7 +136,7 @@ description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.8.0"
+version = "0.9.0"
 
 [[package]]
 category = "main"
@@ -178,7 +155,7 @@ description = "library with cross-python path, ini-parsing, io, code, log facili
 name = "py"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.7.0"
+version = "1.8.0"
 
 [[package]]
 category = "dev"
@@ -200,54 +177,54 @@ six = ">=1.10.0"
 
 [[package]]
 category = "main"
-description = "Alternative regular expression module, to replace re."
-name = "regex"
-optional = false
-python-versions = "*"
-version = "2018.01.10"
-
-[[package]]
-category = "main"
 description = "Python HTTP for Humans."
 name = "requests"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "2.20.1"
+version = "2.21.0"
 
 [package.dependencies]
 certifi = ">=2017.4.17"
 chardet = ">=3.0.2,<3.1.0"
-idna = ">=2.5,<2.8"
+idna = ">=2.5,<2.9"
 urllib3 = ">=1.21.1,<1.25"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
-python-versions = "*"
-version = "1.11.0"
+python-versions = ">=2.6, !=3.0.*, !=3.1.*"
+version = "1.12.0"
 
 [[package]]
 category = "main"
 description = "Industrial-strength Natural Language Processing (NLP) with Python and Cython"
 name = "spacy"
 optional = false
-python-versions = "*"
-version = "2.0.16"
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
+version = "2.1.1"
 
 [package.dependencies]
+blis = ">=0.2.2,<0.3.0"
 cymem = ">=2.0.2,<2.1.0"
-dill = ">=0.2,<0.3"
-msgpack-numpy = "<0.4.4"
+jsonschema = ">=2.6.0,<3.0.0"
 murmurhash = ">=0.28.0,<1.1.0"
 numpy = ">=1.15.0"
 plac = ">=0.9.6,<1.0.0"
 preshed = ">=2.0.1,<2.1.0"
-regex = "2018.01.10"
 requests = ">=2.13.0,<3.0.0"
-thinc = ">=6.12.0,<6.13.0"
-ujson = ">=1.35"
+srsly = ">=0.0.5,<1.1.0"
+thinc = ">=7.0.2,<7.1.0"
+wasabi = ">=0.0.12,<1.1.0"
+
+[[package]]
+category = "main"
+description = "Modern high-performance serialization utilities for Python"
+name = "srsly"
+optional = false
+python-versions = "*"
+version = "0.0.5"
 
 [[package]]
 category = "main"
@@ -255,29 +232,18 @@ description = "Practical Machine Learning for NLP"
 name = "thinc"
 optional = false
 python-versions = "*"
-version = "6.12.0"
+version = "7.0.4"
 
 [package.dependencies]
-cymem = ">=2.0.2,<3.0.0"
-cytoolz = ">=0.9.0,<0.10"
-dill = ">=0.2.7,<0.3.0"
-msgpack = ">=0.5.6,<1.0.0"
-msgpack-numpy = "<0.4.4.0"
+blis = ">=0.2.1,<0.3.0"
+cymem = ">=2.0.2,<2.1.0"
 murmurhash = ">=0.28.0,<1.1.0"
 numpy = ">=1.7.0"
 plac = ">=0.9.6,<1.0.0"
-preshed = ">=2.0.1,<3.0.0"
-six = ">=1.10.0,<2.0.0"
+preshed = ">=1.0.1,<2.1.0"
+srsly = ">=0.0.5,<1.1.0"
 tqdm = ">=4.10.0,<5.0.0"
-wrapt = ">=1.10.0,<1.11.0"
-
-[[package]]
-category = "main"
-description = "List processing tools and functional utilities"
-name = "toolz"
-optional = false
-python-versions = "*"
-version = "0.9.0"
+wasabi = ">=0.0.9,<1.1.0"
 
 [[package]]
 category = "main"
@@ -285,15 +251,7 @@ description = "Fast, Extensible Progress Meter"
 name = "tqdm"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
-version = "4.28.1"
-
-[[package]]
-category = "main"
-description = "Ultra fast JSON encoder and decoder for Python"
-name = "ujson"
-optional = false
-python-versions = "*"
-version = "1.35"
+version = "4.31.1"
 
 [[package]]
 category = "main"
@@ -305,46 +263,42 @@ version = "1.24.1"
 
 [[package]]
 category = "main"
-description = "Module for decorators, wrappers and monkey patching."
-name = "wrapt"
+description = "A lightweight console printing and formatting toolkit"
+name = "wasabi"
 optional = false
 python-versions = "*"
-version = "1.10.11"
+version = "0.1.4"
 
 [metadata]
 content-hash = "377008c2607f1cab58497fe0952af2f2aff081eaf93a9771b6bf5e4a4e7da11d"
 python-versions = "^3.6"
 
 [metadata.hashes]
-atomicwrites = ["0312ad34fcad8fac3704d441f7b317e50af620823353ec657a53e981f92920c0", "ec9ae8adaae229e4f8446952d204a3e4b5fdd2d099f9be3aaf556120135fb3ee"]
-attrs = ["10cbf6e27dbce8c30807caf056c8eb50917e0eaafe86347671b57254006c3e69", "ca4be454458f9dec299268d472aaa5a11f67a4ff70093396e1ceae9c76cf4bbb"]
+atomicwrites = ["03472c30eb2c5d1ba9227e4c2ca66ab8287fbfbbda3888aa93dc2e28fc6811b4", "75a9445bac02d8d058d5e1fe689654ba5a6556a1dfd8ce6ec55a0ed79866cfa6"]
+attrs = ["69c0dbf2ed392de1cb5ec704444b08a5ef81680a61cb899dc08127123af36a79", "f0b870f674851ecbfbbbd364d6b5cbdff9dcedbc7f3f5e18a6891057f21fe399"]
+blis = ["039129410a338be8db8cf48c54334bd7c30da7e72bad2741e59313b1d242814b", "058f9109aaea9d4f88cb623a44994d96c8cf36448de3e1bd30210628d6b52e9e", "278d7b95e56cf82a6bef91cd8283eadc9401f2d3bdbbf2cdfdb605cf9081c36e", "2d4ca1508fd6229c7994fc17ba324083a5b83f66612c8ea62623a41a1768b030", "51a54bad6175e9b154beeb628a879ed492ee2247c9e40c77bdf6fc772145130c", "886b313f96d4e268a0587e98c1637d963c73defa8de51e2e6b0d0bd00f16afbb", "9f12e6f1e4b10dbb1e0e34e98f60e8435058a60d544a009cb761351fe1d12cad", "a54d4fa1908d586f8bce9851a453cb89d1542e9aca65b8b88e9bb9432d626f80", "b9d6cef13d95e3752320cd942df25e09160a6f9dfc3d7b41af7cdc772ab18270", "d571464d195a950e60bf1547c8914d4da50952e06a0f38cea7b0829d0a4b985a", "d616d64c85e6be92d69a1410dc58146cb9603fd1eb148f9ee512b8fddfd789f6", "e477c7eaacf7dcccbb190a29559579efb287ecf5c2a9a7a6f9acb0452899f033", "e6ae1986625af86f90f111f9d2d284b9e45fddfe56cf40524cdd9417a6a33b87"]
 cached-property = ["3a026f1a54135677e7da5ce819b0c690f156f37976f3e30c5430740725203d7f", "9217a59f14a5682da7c4b8829deadbfc194ac22e9908ccf7c8820234e80a1504"]
-certifi = ["339dc09518b07e2fa7eda5450740925974815557727d6bd35d319c1524a04a4c", "6d58c986d22b038c8c0df30d639f23a3e6d172a05c3583e766f4c0b785c0986a"]
+certifi = ["59b7658e26ca9c7339e00f8f4636cdfe59d34fa37b9b04f6f9e9926b3cece1a5", "b26104d6835d1f5e49452a26eb2ff87fe7090b89dfcaee5ea2212697e1e1d7ae"]
 chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"]
-colorama = ["a3d89af5db9e9806a779a50296b5fdb466e281147c2c235e8225ecc6dbf7bbf3", "c9b54bebe91a6a803e0772c8561d53f2926bfeb17cd141fbabcb08424086595c"]
+colorama = ["05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d", "f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"]
 cymem = ["081c652ae1aff4759813e93a2fc4df4ba410ce214a0e542988e24c62110d4cd0", "0e447fa4cb6dccd0b96257a798370a17bef3ec254a527230058e41816a777c04", "2c8267dcb15cc6ab318f01ceaf16b8440c0386ae44014d5b22fefe5b0398d05c", "46141111eedbb5b0d8c9386b00226a15f5727a1202b9095f4363d425f259267e", "4994c1f3e948bd58a6e38c905221680563b851983a15f1f01e5ff415d560d153", "584872fd3df176e50c90e37aaca6cb731ac0abcdea4f5b8ad77c30674cfaaa99", "6e3194135b21bb268030f3473beb8b674b356c330a9fa185dced2f5006cbd5ba", "71710ee0e946a6bd33c86dd9e71f95ad584c65e8bb02615f00ceb0d8348fb303", "741957f541fb8322de5a8c711d5d58f80d684225d2aec32fec92484cac931a52", "7f01ba6153427811cd7d35630081c69b32c188a1d330599a826ef3bf17edbd7c", "8d96e95902e781950d7c255b19364a1ed50a204843d63dd386b0abc5e6df5e44", "8dd169ece1629ec4db1a592321e3ae0a9bb62fda2052a351fc36871f314c3569", "8e6ad29636edd559b0dfe0a19c5cb5e6257461a5df90839e8c7710ddb005f4b4", "9935b233882732f03fd0fadbeb9e9aa672edcdd126e6d52c36d60adf1def8ea5", "a38b3229782411e4b23240f5f90000c4e7a834af88ed8763c66f8e4603db6b51", "a5966b3171bad9c84a2b19dccda5ab37ae8437c0709a6b72cb42b64ea76a4bd3", "ab88b1534f06df07262d9bc5efb3ba07948cdbe9a363eb9eaa4ad42fae6c7b5e", "b08b0dd7adafbff9f0fd7dc8dcad5f3ce6f23c126c81ad8d1666880cc94e6974", "ba47b571d480c0b76d282ff1634372070031d4998a46ae5d8305d49563b74ca6", "bf049dc9cf0d3aa4a48ba514b7f1699fb6f35b18ad8c6f018bd13e0bccd9d30c", "c46a122c524a3270ac5249f590ac2f75f1a83692a3d3a03479cea49de72a0a89", "c63337aa7e1ad4ec182cc7847c6d85390589fbbf1f9f67d1fde8133a9acb7fa8", "ec51273ea08a2c6389bc4dd6b5183354826d916b149a041f2f274431166191bc"]
-cytoolz = ["84cc06fa40aa310f2df79dd440fc5f84c3e20f01f9f7783fc9c38d0a11ba00e5"]
-dill = ["624dc244b94371bb2d6e7f40084228a2edfff02373fe20e018bef1ee92fdd5b3"]
-idna = ["156a6814fb5ac1fc6850fb002e0852d56c0c8d2531923a51032d1b70760e186e", "684a38a6f903c1d71d6d5fac066b58d7768af4de2b832e426ec79c30daa94a16"]
-more-itertools = ["c187a73da93e7a8acc0001572aebc7e3c69daf7bf6881a2cea10650bd4420092", "c476b5d3a34e12d40130bc2f935028b5f636df8f372dc2c1c01dc19681b2039e", "fcbfeaea0be121980e15bc97b3817b5202ca73d0eae185b4550cbfce2a3ebb3d"]
-msgpack = ["0b3b1773d2693c70598585a34ca2715873ba899565f0a7c9a1545baef7e7fbdc", "0bae5d1538c5c6a75642f75a1781f3ac2275d744a92af1a453c150da3446138b", "0ee8c8c85aa651be3aa0cd005b5931769eaa658c948ce79428766f1bd46ae2c3", "1369f9edba9500c7a6489b70fdfac773e925342f4531f1e3d4c20ac3173b1ae0", "22d9c929d1d539f37da3d1b0e16270fa9d46107beab8c0d4d2bddffffe895cee", "2ff43e3247a1e11d544017bb26f580a68306cec7a6257d8818893c1fda665f42", "31a98047355d34d047fcdb55b09cb19f633cf214c705a765bd745456c142130c", "8767eb0032732c3a0da92cbec5ac186ef89a3258c6edca09161472ca0206c45f", "8acc8910218555044e23826980b950e96685dc48124a290c86f6f41a296ea172", "ab189a6365be1860a5ecf8159c248f12d33f79ea799ae9695fa6a29896dcf1d4", "cfd6535feb0f1cf1c7cdb25773e965cc9f92928244a8c3ef6f8f8a8e1f7ae5c4", "e274cd4480d8c76ec467a85a9c6635bbf2258f0649040560382ab58cabb44bcf", "f86642d60dca13e93260187d56c2bef2487aa4d574a669e8ceefcf9f4c26fd00", "f8a57cbda46a94ed0db55b73e6ab0c15e78b4ede8690fa491a0e55128d552bb0", "fcea97a352416afcbccd7af9625159d80704a25c519c251c734527329bb20d0e"]
-msgpack-numpy = ["0a8256ffcbee7fef50eff89a452e8873089e03d0bf88d83af87023ac71fdcf68", "7253c389db3d858101bc38272c2f14936f5760e889cccf0d5683375327b6915d"]
-murmurhash = ["071f6369a65b835becdfe2d8ab02a4d05e83336a0bf3138dbf12a8f6967604ea", "197ac63d8eeadc5483771756d05aa19ae497ecdcdaf52c93494085ebb5ec07f3", "1fc10274819f2c6bfc80d8fc3c58af02f08f642d591e202bb46992b460ce2987", "2791a32228d7c34502b07078e720c3acc84e7e5b691f55812dcf155a0c13cca0", "2f6b63d0d7c5171b91953ad204de8f3e2ce387b9308784f7e00170d7f229e5f7", "38e91cd5ae5192b8f63cfe756cc784bf0cd44f64a15e496ba0a6fddda3f48b0b", "3ee8ee6f31842e2aafc0aca30f4e77ed1fb8fcbe490ad2840cf494610fcb12b2", "46892237f315a11bbf3c2bf15efaaa2a1ee16c9020ad9aa9f4741d056f06dd13", "5657a0160d2b96cea7bd18b212e6c599a59423acbd89cde809c6e663b33b5431", "70c9d020dea00251804fc40ce1282dd7209f924dc5bc7b99078fff48efe18de6", "892ed1cf981018491c822e3170f9e0569e2ba4f545adda5c64c78ba260ee7aa7", "8ada4beec7b06b32cb4a49b8f2b847246d47a3f49b0ed823958d69bf28435917", "95efa59af24226321041c798fb7a125dc792edd6a31614efbd6c742ab98de35f", "9903f5c877bcfe4c7afb33dd2ce9af014033e86d9df549c958bf15751a35474a", "9da5dba8ac50f9b2daede067f0f103cd3cba7f437dbbd515d2decb393ee80dde", "9fcc1d57eb8179713a6045ab96f24aabaa3ab259e72a4d22bad63eff321d6ea6", "a44feb4efac2a8c319eda86f3213162bbde9874c57b3421a99f9673736fea162", "a47b27867a40cd9312898609fda3b4e5150aee1df569745ddaf0b4b7fe17bc96", "b6850783e4fc59386c0585fc106c9bbe2e7b8f9de74603b9a8b252db8cc7e0af", "ba5019b87c659ffd4aab78b6fc1163837fbf871c43fb0307f97e5d29ab299434", "e4edd636ef9338b19cfbbffb193674f96c8313797d04cd8750eeed802cbdf9bf", "f578afc6a986529a39eab36b1446e04006a4489abd32efb0ccb2a3d984a40066", "f585411e568bed2c5216b75681e4734baff8f7f174f95f3547637735896a76f4"]
-numpy = ["0df89ca13c25eaa1621a3f09af4c8ba20da849692dcae184cb55e80952c453fb", "154c35f195fd3e1fad2569930ca51907057ae35e03938f89a8aedae91dd1b7c7", "18e84323cdb8de3325e741a7a8dd4a82db74fde363dce32b625324c7b32aa6d7", "1e8956c37fc138d65ded2d96ab3949bd49038cc6e8a4494b1515b0ba88c91565", "23557bdbca3ccbde3abaa12a6e82299bc92d2b9139011f8c16ca1bb8c75d1e95", "24fd645a5e5d224aa6e39d93e4a722fafa9160154f296fd5ef9580191c755053", "36e36b6868e4440760d4b9b44587ea1dc1f06532858d10abba98e851e154ca70", "3d734559db35aa3697dadcea492a423118c5c55d176da2f3be9c98d4803fc2a7", "416a2070acf3a2b5d586f9a6507bb97e33574df5bd7508ea970bbf4fc563fa52", "4a22dc3f5221a644dfe4a63bf990052cc674ef12a157b1056969079985c92816", "4d8d3e5aa6087490912c14a3c10fbdd380b40b421c13920ff468163bc50e016f", "4f41fd159fba1245e1958a99d349df49c616b133636e0cf668f169bce2aeac2d", "561ef098c50f91fbac2cc9305b68c915e9eb915a74d9038ecf8af274d748f76f", "56994e14b386b5c0a9b875a76d22d707b315fa037affc7819cda08b6d0489756", "73a1f2a529604c50c262179fcca59c87a05ff4614fe8a15c186934d84d09d9a5", "7da99445fd890206bfcc7419f79871ba8e73d9d9e6b82fe09980bc5bb4efc35f", "99d59e0bcadac4aa3280616591fb7bcd560e2218f5e31d5223a2e12a1425d495", "a4cc09489843c70b22e8373ca3dfa52b3fab778b57cf81462f1203b0852e95e3", "a61dc29cfca9831a03442a21d4b5fd77e3067beca4b5f81f1a89a04a71cf93fa", "b1853df739b32fa913cc59ad9137caa9cc3d97ff871e2bbd89c2a2a1d4a69451", "b1f44c335532c0581b77491b7715a871d0dd72e97487ac0f57337ccf3ab3469b", "b261e0cb0d6faa8fd6863af26d30351fd2ffdb15b82e51e81e96b9e9e2e7ba16", "c857ae5dba375ea26a6228f98c195fec0898a0fd91bcf0e8a0cae6d9faf3eca7", "cf5bb4a7d53a71bb6a0144d31df784a973b36d8687d615ef6a7e9b1809917a9b", "db9814ff0457b46f2e1d494c1efa4111ca089e08c8b983635ebffb9c1573361f", "df04f4bad8a359daa2ff74f8108ea051670cafbca533bb2636c58b16e962989e", "ecf81720934a0e18526177e645cbd6a8a21bb0ddc887ff9738de07a1df5c6b61", "edfa6fba9157e0e3be0f40168eb142511012683ac3dc82420bee4a3f3981b30e"]
-ordered-set = ["7d292b866fa44f339ac6e624e3d338accfb415ce0a8431595d51990fbdf61d3b"]
+idna = ["c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407", "ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"]
+jsonschema = ["000e68abd33c972a5248544925a0cae7d1125f9bf6c58280d37546b946769a08", "6ff5f3180870836cae40f06fa10419f557208175f13ad7bc26caa77beb1f6e02"]
+more-itertools = ["0125e8f60e9e031347105eb1682cef932f5e97d7b9a1a28d9bf00c22a5daef40", "590044e3942351a1bdb1de960b739ff4ce277960f2425ad4509446dbace8d9d1"]
+murmurhash = ["27b908fe4bdb426f4e4e4a8821acbe0302915b2945e035ec9d8ca513e2a74b1f", "33405103fa8cde15d72ee525a03d5cfe2c7e4901133819754810986e29627d68", "386a9eed3cb27cb2cd4394b6521275ba04552642c2d9cab5c9fb42aa5a3325c0", "3af36a0dc9f13f6892d9b8b39a6a3ccf216cae5bce38adc7c2d145677987772f", "717196a04cdc80cc3103a3da17b2415a8a5e1d0d578b7079259386bf153b3258", "8a4ed95cd3456b43ea301679c7c39ade43fc18b844b37d0ba0ac0d6acbff8e0c", "a6c071b4b498bcea16a8dc8590cad81fa8d43821f34c74bc00f96499e2527073", "b0afe329701b59d02e56bc6cee7325af83e3fee9c299c615fc1df3202b4f886f", "ba766343bdbcb928039b8fff609e80ae7a5fd5ed7a4fc5af822224b63e0cbaff", "bf33490514d308bcc27ed240cb3eb114f1ec31af031535cd8f27659a7049bd52", "c7a646f6b07b033642b4f52ae2e45efd8b80780b3b90e8092a0cec935fbf81e2", "d696c394ebd164ca80b5871e2e9ad2f9fdbb81bd3c552c1d5f1e8ee694e6204a", "fe344face8d30a5a6aa26e5acf288aa2a8f0f32e05efdda3d314b4bf289ec2af"]
+numpy = ["1980f8d84548d74921685f68096911585fee393975f53797614b34d4f409b6da", "22752cd809272671b273bb86df0f505f505a12368a3a5fc0aa811c7ece4dfd5c", "23cc40313036cffd5d1873ef3ce2e949bdee0646c5d6f375bf7ee4f368db2511", "2b0b118ff547fecabc247a2668f48f48b3b1f7d63676ebc5be7352a5fd9e85a5", "3a0bd1edf64f6a911427b608a894111f9fcdb25284f724016f34a84c9a3a6ea9", "3f25f6c7b0d000017e5ac55977a3999b0b1a74491eacb3c1aa716f0e01f6dcd1", "4061c79ac2230594a7419151028e808239450e676c39e58302ad296232e3c2e8", "560ceaa24f971ab37dede7ba030fc5d8fa173305d94365f814d9523ffd5d5916", "62be044cd58da2a947b7e7b2252a10b42920df9520fc3d39f5c4c70d5460b8ba", "6c692e3879dde0b67a9dc78f9bfb6f61c666b4562fd8619632d7043fb5b691b0", "6f65e37b5a331df950ef6ff03bd4136b3c0bbcf44d4b8e99135d68a537711b5a", "7a78cc4ddb253a55971115f8320a7ce28fd23a065fc33166d601f51760eecfa9", "80a41edf64a3626e729a62df7dd278474fc1726836552b67a8c6396fd7e86760", "893f4d75255f25a7b8516feb5766c6b63c54780323b9bd4bc51cdd7efc943c73", "972ea92f9c1b54cc1c1a3d8508e326c0114aaf0f34996772a30f3f52b73b942f", "9f1d4865436f794accdabadc57a8395bd3faa755449b4f65b88b7df65ae05f89", "9f4cd7832b35e736b739be03b55875706c8c3e5fe334a06210f1a61e5c2c8ca5", "adab43bf657488300d3aeeb8030d7f024fcc86e3a9b8848741ea2ea903e56610", "bd2834d496ba9b1bdda3a6cf3de4dc0d4a0e7be306335940402ec95132ad063d", "d20c0360940f30003a23c0adae2fe50a0a04f3e48dc05c298493b51fd6280197", "d3b3ed87061d2314ff3659bb73896e622252da52558f2380f12c421fbdee3d89", "dc235bf29a406dfda5790d01b998a1c01d7d37f449128c0b1b7d1c89a84fae8b", "fb3c83554f39f48f3fa3123b9c24aecf681b1c289f9334f8215c1d3c8e2f6e5b"]
+ordered-set = ["41c7ba85e7619cd4c71e38d4cd434f84de8473b826919eb79274b3a11b940b4d", "f9b703ea9aa9c1db44412c5ba1c16cf8b7ad7ef37a685e4da2fd3754b40f8f6a"]
 ordered-set-stubs = ["29274ae21ca2cfc127874042461996e748bb3c68ae7618ffd0028309554e2dff", "4f76c7470a4e364feb51fe42c4bcd968c8ff9dab520aff9287b394e14da1d1ee"]
 plac = ["854693ad90367e8267112ffbb8955f57d6fdeac3191791dc9ffce80f87fd2370", "ba3f719a018175f0a15a6b04e6cc79c25fd563d348aacd320c3644d2a9baf89b"]
-pluggy = ["447ba94990e8014ee25ec853339faf7b0fc8050cdc3289d4d71f7f410fb90095", "bde19360a8ec4dfd8a20dcb811780a30998101f078fc7ded6162f0076f50508f"]
+pluggy = ["19ecf9ce9db2fce065a7a0586e07cfb4ac8614fe96edf628a264b1c70116cf8f", "84d306a647cc805219916e62aab89caa97a33a1dd8c342e87a37f91073cd4746"]
 preshed = ["0c9af79c7b825793f987d477627efb81afd23384ac791bebbc88a257342a77ab", "0ebc79431154bc5d12f97b3c93bc350af941702a44f0761dfcd395e970d693f8", "102e71dc841c979b2ece44ab05b2b0aa39c8039493ddac40dd22cf23e2484063", "15145b24eded01426544be829a6395d6c99e2d62f5f3b88a6e19087ebeef7237", "195674dfb4bcf18b26e448feaabdf61adcf028ae69ecaa075c0bdfaf62a19671", "38f7fbef59f89d3b2c8c3b102f9a7360cd73a33c829fdeb101c615b18ecc4686", "3aa411233dc230247ea4c4558062e5b2d59d41c697107a45fddbfe03e63f3e77", "3b8c7b607e6dce0843544cfe4f05355db0516fce8eca0c37d6b5f4f3680493bf", "4bda4153d46a603bc6ea65380dfa091d46700f664cb906c7f26a469be6c2a503", "541d7ed765d67512d6f9fa24fd01cc1d7a51c7ff2646362924f4db46813b485a", "593d23b9f851ae7a4d519ca4489dd2b352d833e08f5d35795d42a591b8badb54", "7f6fb8f4108abe958af892847ed50abe6f45aaf45a87853cc8154a7203e75d84", "7ff7f18af1f19ea666ac4fbf48842e6acd900fbfdc26bb9aad02f353ff932386", "9c0d503d8693bf1e08e0fa1cecbcd3253146abaa9a7501d7d583a72edd29fdd1", "9cefe818a97134c0ddf22ef76fced1c841ebd137c2895251c5d1310276c234b5", "9e603916a95dc524081d54c0a135611e6f68d787185d5df2b5ab3f076c3d1bd4", "a2acacceac79aa6d4b65125e20c7de78fbca1340a251854c87967acef1795490", "a3d592e7b265b4faf08c9b4d7493b9e8604e0ba8858cc9bd8c9aee41d3df2a3a", "b2030e68c6f539e6dd7bfcea032940042739ef05d50a2eb1d7af24e038971b0f", "bc894dc14d8567a5d6a1cded0a701da7fbb360b2124237fe8acde85333825aef", "c21d4d10cc0248ba3facbbbfbe63211ce921478a3d5db6de34de39ee1b3484e1", "dae01c74313965c487e0ec839e5f28d0c7df9bfd1d978aa5bada3f72ff20a9e5", "ee8068035684a4b382bebb3a3f270799360545baff9742b85e627a0a889e6850"]
-py = ["bf92637198836372b520efcba9e020c330123be8ce527e535d185ed4b6f45694", "e76826342cefe3c3d5f7e8ee4316b80d1dd8a300781612ddbc765c17ba25a6c6"]
+py = ["64f65755aee5b381cea27766a3a147c3f15b9b6b9ac88676de66ba2ae36793fa", "dc639b046a6e2cff5bbe40194ad65936d6ba360b52b3c3fe1d08a82dd50b5e53"]
 pytest = ["3f193df1cfe1d1609d4c583838bea3d532b18d6160fd3f55c9447fdca30848ec", "e246cf173c01169b9617fc07264b7b1316e78d7a650055235d6d897bc80d9660"]
-regex = ["079c656874ba6c2e3332df488d4eff33b94b4e260e3901dce1553cb4f1f36c73", "139678fc013b75e486e580c39b4c52d085ed7362e400960f8be1711a414f16b5", "26795107acb81bb07ef832832548834b03846eb046e5ba9a5917ee012c68c1e6", "28a542117efd479cff110711c28f34cb40636f670d427dc42710b5183fbd92c4", "3e2609e0e366b21c3db3d41159d99e7bd37e02caaba24bba77ec5cc594c62c4e", "45fed2f98e5ca0fc420ff31cbd9eccbee41e4d607569fddaba0faea36ef6043d", "47230e1af3479810b1ef2bf23768b5195588a03eea6248b678d6893c48f58082", "51306abdaac9e712b208066d284ddc7e3a332c77ad6054ba8d305d607609a328", "5f15a27c24ed4ad2ed492abe80ddf27d35d63ef6c0d8878c915de6bf9f36c6f3", "660990e223ef2f71cb78b4e106a9a023652a31fd305051a901b0f87171b69e24", "67025161b70b0625749b1b89200da59fecc2fda9d1e46f9ef588f9a4af9fc48f", "801e054c1aa163545d29e186a1bea779437a19b49c4da9e11049624c2d2bfd31", "93064faef899911a7378443fcfb1f2e93e19706a324162fc71dd996c85b24f37", "9c4b23f8a68470522a0cdfbdcffbe2f61d7659b5d505cb7c1a729a6805345210", "c1ef8f72944bef49261daaa83c7d77439f54f8deefefc0e2cf7144ac8b20ac1f"]
-requests = ["65b3a120e4329e33c9889db89c80976c5272f56ea92d3e74da8a463992e3ff54", "ea881206e59f41dbd0bd445437d792e43906703fff75ca8ff43ccdb11f33f263"]
-six = ["70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9", "832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb"]
-spacy = ["16933ca39b64845173152754232a6baa89b16f957a39f5d9ff5ee8f629107ef0", "25cf067bb7b64f547d496d6ab65ed5564287f9a62367caf0994e22bf25bdadad", "2a4fc155f8c9b03a63b2b18c11058947fb88853c43e140f0225aac626f54b1b9", "2b1f3f070974a03dbcae2600ffa6cdf8d5dba9cd35c23b2684a53102cb6078e5", "319b80c709d0f1feb1b08dba8fc8edb83a3679024ae6dfbedcf58aeb27fc8e1a", "3a6ec6d647f5695be7443fcc616120b17cdfb3cf0c5d0463b744e89886d25bb8", "41de9353994aa782deb66a14742219b205ecd59fe11290ce39c4b914d05e0fbe", "4e7e72a66805844a3f5b949fecddd03f9af662993fc64f73aae3b1f48dd4e5d4", "6c1eb3e3392485548cec9557f6f7ad7a91001c54f9740c9fb2d9dfbb03c19bfa", "6e9257346174b6ec758aaceac0b5a2075fd4c0fb5f8f6374160949d87e4a51a4", "7336675810b1cee24841935284b315d841cc8b81df396ae96da34306fee3f2b2", "739ba98acf242c5b823fcf8f56686d0b9e07100ab952080b61a2a6c8a3856c1f", "88e7f0fccf282083a5d3f3ba482034c08f8043a16786ab4047058cb055d4cb3a", "92e4dfb8edeabaa5ae782e2ecaa5bb856dad76ff4e6a326d06ce946bb849f209", "9cddc538bbb9360c15a3e60dacc9424c8a71bc59c5eadda2988d3ae939dae881", "a362dde319ffa1de03b8ab093e3998c6ce3522ca73cac0342a487b24af5c5881", "a80e9747d0a2674216de0d2ac56ba26c1e6784e3e35c500cf09e89c36c454e99", "aa81153834fac96b506d0088623478a91fbeb9f3f1447ec7816c3e84dd872763", "ad7b070565bc83a19a9317408cd8c3c262b982567642f6e38ff90c3597069325", "c0685dcc1ca2ea2abc6de61561d52b8b5aca279e4bc8ac461d5b425c028859df", "cb9e6d43959be74b1168ba7fa62554186293a7f619acc33f5e2e47c1e0ce8bed", "d59ffc3b1c8556fa575822329f7860d1265dcfae45e7f6ab272e11749514b62c", "ef8c0b2d88c948883918231dfe26b2fae747b363ee5fed79a9741e69bde5c095"]
-thinc = ["03888366f61d59b71f8270c7383ebbd8b7a05369c60c08585f8c64e5301c73ef", "076c2804d7c251b8b53dca04b7d6e28fccf6e193cdc9f77cc13cd5e193a907ea", "256534fa9e7e54786bb2e9ec938523a4aa073ad1c1326b8af08e859ebbe6b181", "2cec30fa1072aff0e765e4e030498630ac01eb133054819ef68d0d26ed3ad30c", "49f9f2a8189f818d3a68d585dfa1d5ba1ee1dae8536c723f2662f846f826f02d", "5af682d61bce995d369dc6f1eec9f960ae3b68823b4921ca9989ce4b1f1788e1", "6201b033f2a31829383fa029c2a5aae0b91ac36669507599bde2cde87047d18d", "68fc772c8b05e93e0b0f08e168cf651d14c77c61bafbfdc294a8898b9846bd26", "757ae2d54250e30919aa3171a64c801f28ac74446e8b9fc44a32e7b31170cd51", "809090926f4c65a2d715b6ccda78353e12f576e2ac130183abef6771a5f528f1", "8828a4068be4d256bad9564f1dd64813266e248e4735378c73b783165ebd4528", "8e03914a8e7c10b6ffd7485c1356ba4b754a7c79670e88920c9f0093bbc52945", "957496822ec6d10378842fa0f21fa8bfa5facc154c0cde8cd6ddcfa963faca8d", "9e3973042edda691d4edbfcf36d88b60403eb4f3219db8f6f43b716c41c814c7", "a571fa0820c5053decfdd5c359b87c9775558946973a7cf81d601453db38d86a", "ae6f7e3231968deaa508b73a1513bd5f0c0b4bfb97e014b94ac5665bad0e3050", "b625692ef32fd1d04ffb6cefc3a3910aec7cf28a346652adbdbba17c7322c02d", "b7483c0dc417141d5886329e0d4d5eeef98dde9da47b498bd8f93c76d1ae2fb5", "ba1368c40f74759fa2fdb10e5c7be8fadc1ee7b1e3b378d1fb753d9de769bf70", "be7173fee70022e77c82b785d62eeeb7b19f9a6d590d75864ec11c93e450b8d1", "d71e64018a36156a50992383002d6bc8bd3a509519f7c5649788300ebd7f91a8", "edc3a70351aa15d165a95f78b6dae61904ecaec420ea5857a15fcaed66e82695", "f8c5b71e30383edd782957bf7f4098a0a3a347b7f631bf38e9e2d89db445e530"]
-toolz = ["929f0a7ea7f61c178bd951bdae93920515d3fbdbafc8e6caf82d752b9b3b31c9"]
-tqdm = ["3c4d4a5a41ef162dd61f1edb86b0e1c7859054ab656b2e7c7b77e7fbf6d9f392", "5b4d5549984503050883bc126280b386f5f4ca87e6c023c5d015655ad75bdebb"]
-ujson = ["f66073e5506e91d204ab0c614a148d5aa938bdbf104751be66f8ad7a222f5f86"]
+requests = ["502a824f31acdacb3a35b6690b5fbf0bc41d63a24a45c4004352b0242707598e", "7bf2a778576d825600030a110f3c0e3e8edc51dfaafe1c146e39a2027784957b"]
+six = ["3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c", "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"]
+spacy = ["2a8d3c5a34015732f831d884949d7147fe0cf2799705a4c7addaab42472e20b7", "3cb8ff31d07be4aa0c5462bd417887c1f995e69368950a675c3368821d796625", "50651d94c7ef9ec325fbfceb712ae52e903b43d3ded524957cd5265976d4147a", "55756b1f999c6bede1fb5d0a0d2088c8a044670138c3f9b9a9866fda052433c2", "6420c1b7a9d343e9b147e4b1993fc93b87648a591e6b44ba4d9d547a67265d70", "809561162007bdda8a8a07cded52983e848b1a83de6dc3e8b025007bbcdb3994", "d97e5abd897ff17d14db6b18f2df5834ab6ddc29d9fc2e6f17dd54acdcbd19a3", "f80984707402947a9b75ed54b2f25d9880fc2d65d78fcf8dab36b8bb61da5ccf", "fcaa16f65510dfcfdf3785bc31e9c304a3999c313fa21b2ce60d30b7b017a95d"]
+srsly = ["02ea974c4b80f9ffdea4f953ffece5a8715e4e4b37d09192ab65cf4edfbf74d1", "061ade35556e51b2e1da6f8552be7a6327d2d02b69edf0aacc9f5c4319d495f1", "1bf6af7a86f34969a3997da09fc8c2f72ee02cd74ff40035e37c2f968776fa23", "1e4ef85bf133e384f465865ba4e0a14a52c4f2e4b46c763faf100339a06f09c4", "850399e43f4cefdcac7a913363b120ea084cb02fcfdbbde1bd37444804d7def4", "977aa6e5fd3f7e9d1c8fe7aeed841dfe3ede75dfce04255d4c670e663faaef2a", "abdc5b46866648b123517550582dc4c4b767b816ae54c44e5973bbebc3f0dab4", "ac0dbe6e715e1fe3536397a9e65ec8f3c624c99f45b6f30e87d220071ef84721", "b8646f0f7cf6fd1de4919ab456d9c030e09e74f741a0cecc941363414109ccdc", "b9dc81339c1ab969057e790d7b2a56fd4da87336785bd671c86520e8272e3663", "d7c91f59edc2ceeca70adf1b0a46d337234ff4fb7ca2b579ca41885f011b329f", "d906a2a3df1cac2cb4bf382b8aaf14e22df2ca3758eba0d3049723c851c8ebf0", "ecec49c9cdaae4594011666dd654e1e044e552f63bb3a62a1849c65a92ee302e", "ef7897050c04a313f2db99c9bcaf2f0c3c75609677683ca5a6e1e7a515325d72"]
+thinc = ["12c003b804fb93c64261a5010df0129f942234adb8f45d489a355a5315e06acf", "17f9ada01f1f77a5560bc16ec5a650dca08356b50727ded0df19f0dfb4a32a25", "26c9d54ffd90753feebbc462ae59939a9e3d2485ef24ed3dc1861c9b486fdbbe", "3258161fc2cefa4082f099dec3748f1dcef5e920df5e9d82258ea6ffec280b9a", "38a83b928cdc49c994852538f639b2a889681a0589c44b1a6fc3c899e5f36893", "3e76101a733bbb0b97d44bdbcb407678b9e2b487047acb6f4c19b72909a6b12f", "412f107c458d2951711b4d3ec53587244cd3acc032944e855f49cf94a1adc36e", "4948c10c61e627950900cdccf506eb7398d2b28f33cf72bb4b5d9c5c572925e7", "a8b2d7713a7dfc0b18b5c16db58ab6e015df14e4fbed0249ed49e630b2d6a86f", "ec99c2c65962157c7ee7b947d29f2775291860b81cba62c5bd9f92fdeca2d137", "f2386e66042218f19e511692926cef00a9646a3104d2efddfb5bec7b0388a83b", "fc0b37733591315afddee45823d4f6740f9b0567c1ba57a3a3c319669d1fcbad"]
+tqdm = ["d385c95361699e5cf7622485d9b9eae2d4864b21cd5a2374a9c381ffed701021", "e22977e3ebe961f72362f6ddfb9197cc531c9737aaf5f607ef09740c849ecd05"]
 urllib3 = ["61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39", "de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22"]
-wrapt = ["d4d560d479f2c21e1b5443bbd15fe7ec4b37fe7e53d335d3b9b0a7b1226fe3c6"]
+wasabi = ["45b66936c12e9bc105ae5fb7d837615f4374aac34561b0d906029c7c47a0b4d0", "c519c5b9f9a7abe777f49a43e7952c5e4903042f41f8936b38e60d9cb86cb529"]

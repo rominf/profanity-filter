@@ -616,8 +616,8 @@ class ProfanityFilter:
             lemmas_only_letters = OrderedSet([
                 self._keep_only_letters_or_dictionary_word(language=language, word=lemma) for lemma in lemmas])
             if lemmas_only_letters != lemmas:
-                lemmas_only_letters = chain(
-                    *(self._lemmas(word=lemma, language=language) for lemma in lemmas_only_letters))
+                lemmas_only_letters = [
+                    *chain(*(self._lemmas(word=lemma, language=language) for lemma in lemmas_only_letters))]
                 lemmas.update(lemmas_only_letters)
         # noinspection PyTypeChecker
         if self._has_no_profanity(lemmas):

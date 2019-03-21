@@ -2,10 +2,11 @@ import re
 from collections import defaultdict
 from contextlib import suppress, contextmanager
 from copy import deepcopy
+from dataclasses import dataclass
 from itertools import chain
 from math import floor
 from pathlib import Path
-from typing import Dict, Union, List, Tuple, Set, Optional, NamedTuple, Generator, Collection, ContextManager
+from typing import Dict, Union, List, Tuple, Set, Optional, Generator, Collection, ContextManager
 
 import spacy
 import spacy.attrs
@@ -99,7 +100,8 @@ Substrings = Generator[Tuple[str, int, int], Tuple[int, int], None]
 TextSplittedByLanguage = List[Tuple[Language, str]]
 
 
-class Config(NamedTuple):
+@dataclass(frozen=True)
+class Config:
     censor_char: str = '*'
     censor_whole_words: bool = True
     deep_analysis: bool = True

@@ -92,6 +92,9 @@ class CensoredWord:
     censored: str
     original_profane_word: Optional[str] = None
 
+    def __str__(self):
+        return self.censored
+
 
 CensoredWords = Dict[str, CensoredWord]
 Language = Optional[str]

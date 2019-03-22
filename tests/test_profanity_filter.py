@@ -3,7 +3,8 @@ from collections import defaultdict
 import pytest
 from ordered_set import OrderedSet
 
-from profanity_filter import ProfanityFilter, ProfaneWordDictionaries, POLYGLOT_AVAILABLE, Word
+from profanity_filter import ProfanityFilter, POLYGLOT_AVAILABLE, Word
+from profanity_filter.profanity_filter import ProfaneWordDictionaries
 
 
 TEST_STATEMENT = "Hey, I like unicorns, chocolate, oranges and man's blood, Turd!"

@@ -8,6 +8,7 @@ from math import floor
 from pathlib import Path
 from typing import Dict, Union, List, Tuple, Set, Optional, Generator, Collection, ContextManager
 
+import poetry_version
 import spacy
 import spacy.attrs
 import spacy.language
@@ -121,6 +122,7 @@ class Config:
 
 
 default_config = Config()
+__version__ = poetry_version.extract(source_file=__file__)
 
 
 class ProfanityFilter:

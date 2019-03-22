@@ -1,3 +1,11 @@
-from .profanity_filter import *
+from .profanity_filter import (
+    Config,
+    DEEP_ANALYSIS_AVAILABLE,
+    POLYGLOT_AVAILABLE,
+    ProfanityFilter,
+    ProfanityFilterError,
+    Word,
+    __version__,
+    default_config,
+)
 from .console import main
-__version__ = '1.0.0'

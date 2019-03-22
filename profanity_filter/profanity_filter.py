@@ -87,8 +87,8 @@ class ProfanityFilterError(Exception):
 
 
 @dataclass(frozen=True)
-class CensoredWord:
-    word: str
+class Word:
+    uncensored: str
     censored: str
     original_profane_word: Optional[str] = None
 
@@ -96,7 +96,7 @@ class CensoredWord:
         return self.censored
 
 
-CensoredWords = Dict[str, CensoredWord]
+Words = Dict[str, Word]
 Language = Optional[str]
 ProfaneWordDictionary = 'OrderedSet[str]'
 ProfaneWordDictionaryAcceptable = Collection[str]
@@ -159,7 +159,7 @@ class ProfanityFilter:
         self._trie = {}
 
         # Dict from profane word to censored word that is generated after censoring
-        self._censored_words: Dict[Config, CensoredWords] = {}
+        self._censored_words: Dict[Config, Words] = {}
 
         # Set of words with no profanity inside that is generated after censoring
         # (include words that are not in the dictionary)
@@ -215,12 +215,12 @@ class ProfanityFilter:
         """Returns text with any profane words censored"""
         return self._censor(text=text, return_bool=False)
 
-    def censor_word(self, word: Union[str, spacy.tokens.Token], language: Language = None) -> CensoredWord:
+    def censor_word(self, word: Union[str, spacy.tokens.Token], language: Language = None) -> Word:
         """Returns censored word"""
         if not hasattr(word, 'text'):
             word = self._parse(language=language, text=word, merge=True)
         censored_word_prev = None
-        censored_word = CensoredWord(word=word.text, censored=word.text)
+        censored_word = Word(uncensored=word.text, censored=word.text)
         while censored_word != censored_word_prev:
             censored_word_prev = censored_word
             substrings = (
@@ -249,8 +249,8 @@ class ProfanityFilter:
                         else:
                             censored = censored_word_prev.censored.replace(
                                 censored_part.text, censored_censored_part.censored)
-                        censored_word = CensoredWord(
-                            word=word.text,
+                        censored_word = Word(
+                            uncensored=word.text,
                             censored=censored,
                             original_profane_word=censored_censored_part.original_profane_word,
                         )
@@ -264,7 +264,7 @@ class ProfanityFilter:
         if censored_word.censored == word.text:
             if self.deep_analysis and not self._is_dictionary_word(language=language, word=word.text):
                 self._words_with_no_profanity_inside[self._config].add(word.text)
-                return CensoredWord(word=word.text, censored=word.text)
+                return Word(uncensored=word.text, censored=word.text)
         else:
             self._censored_words[self._config][word.text] = censored_word
         return censored_word
@@ -676,7 +676,7 @@ class ProfanityFilter:
                       languages=tuple(self.languages),
                       max_relative_distance=self.max_relative_distance)
 
-    def _censor_word(self, language: Language, word: spacy.tokens.Token) -> Tuple[CensoredWord, bool]:
+    def _censor_word(self, language: Language, word: spacy.tokens.Token) -> Tuple[Word, bool]:
         """
         :return: Tuple of censored word and flag of no profanity inside
         """
@@ -690,7 +690,7 @@ class ProfanityFilter:
                 lemmas.update(lemmas_only_letters)
         # noinspection PyTypeChecker
         if self._has_no_profanity(lemmas):
-            return CensoredWord(word=word.text, censored=word.text), True
+            return Word(uncensored=word.text, censored=word.text), True
         config = self._config
         if word.text in self._censored_words[config]:
             return self._censored_words[config][word.text], False
@@ -700,13 +700,13 @@ class ProfanityFilter:
                     censored = self._generate_censored_word(word=word)
                 else:
                     censored = self._censor_word_by_part(word=word, profane_word=lemma)
-                censored_word = CensoredWord( word=word.text, censored=censored, original_profane_word=lemma)
+                censored_word = Word(uncensored=word.text, censored=censored, original_profane_word=lemma)
                 self._censored_words[config][word.text] = censored_word
                 return censored_word, False
         if self.deep_analysis:
             for lemma in lemmas:
                 if self._is_dictionary_word(language=language, word=lemma):
-                    return CensoredWord(word=word.text, censored=word.text), True
+                    return Word(uncensored=word.text, censored=word.text), True
                 automaton = LevenshteinAutomaton(tolerance=self._get_max_distance(len(lemma)),
                                                  query_word=lemma,
                                                  alphabet=self._alphabet)
@@ -719,10 +719,10 @@ class ProfanityFilter:
                         censored = self._generate_censored_word(word=word)
                     else:
                         censored = self._censor_word_by_part(word=word, profane_word=bad_word)
-                    censored_word = CensoredWord(word=word.text, censored=censored, original_profane_word=bad_word)
+                    censored_word = Word(uncensored=word.text, censored=censored, original_profane_word=bad_word)
                     self._censored_words[config][word.text] = censored_word
                     return censored_word, False
-        return CensoredWord(word=word.text, censored=word.text), False
+        return Word(uncensored=word.text, censored=word.text), False
 
     def _detect_languages(self, text: str) -> Languages:
         fallback_language = self.languages[0]

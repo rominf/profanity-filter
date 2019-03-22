@@ -3,7 +3,7 @@ from collections import defaultdict
 import pytest
 from ordered_set import OrderedSet
 
-from profanity_filter import ProfanityFilter, ProfaneWordDictionaries, POLYGLOT_AVAILABLE, CensoredWord
+from profanity_filter import ProfanityFilter, ProfaneWordDictionaries, POLYGLOT_AVAILABLE, Word
 
 
 TEST_STATEMENT = "Hey, I like unicorns, chocolate, oranges and man's blood, Turd!"
@@ -56,9 +56,9 @@ def skip_if_polyglot_is_not_available(request):
 
 
 def test_censor_word(profanity_filter):
-    assert profanity_filter.censor_word('world') == CensoredWord(word='world', censored='world')
-    assert profanity_filter.censor_word('shiiit') == CensoredWord(
-        word='shiiit',
+    assert profanity_filter.censor_word('world') == Word(uncensored='world', censored='world')
+    assert profanity_filter.censor_word('shiiit') == Word(
+        uncensored='shiiit',
         censored='******',
         original_profane_word='shit'
     )

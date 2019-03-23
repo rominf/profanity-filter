@@ -142,10 +142,15 @@ def test_deep_analysis(profanity_filter):
     assert profanity_filter.censor('.s.h.i.t.') == '********.'
     assert profanity_filter.censor('*s*h*i*t*') == '*********'
     assert profanity_filter.censor('sh!t') == '****'
+
+
+@pytest.mark.skip_if_deep_analysis_is_disabled
+def test_deep_analysis_with_censor_whole_words_false(profanity_filter):
     profanity_filter.censor_whole_words = False
     assert not profanity_filter.censor_whole_words
     assert profanity_filter.censor('mulkku0') == '******0'
     assert profanity_filter.censor('oofucko') == 'oo****o'
+    assert profanity_filter.censor('h0r1h0r1') == '***1***1'
 
 
 def test_without_deep_analysis(profanity_filter):

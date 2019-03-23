@@ -574,7 +574,7 @@ class ProfanityFilter:
             word = word.text
 
         word_part_for_censoring = find_word_part(word.lower(), profane_word)
-        return regex.sub(pattern=word_part_for_censoring,
+        return regex.sub(pattern=re.escape(word_part_for_censoring),
                          repl=self._generate_censored_word(word=word_part_for_censoring),
                          string=word,
                          flags=regex.IGNORECASE)

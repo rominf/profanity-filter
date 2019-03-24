@@ -125,7 +125,7 @@ $ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/ma
 Let's take Russian language for example, to show how to add language support.
 
 #### Russian language support
-Firstly, we need to provide file `profanityfilter/data/ru_badwords.txt` which contains newline separated list of profane
+Firstly, we need to provide file `profanity_filter/data/ru_badwords.txt` which contains newline separated list of profane
 words. For Russian language it's already present, so we skip file generation.
 
 Next, we need to download appropriate Spacy model. Unfortunately, Spacy model for Russian is not yet ready, 
@@ -160,7 +160,7 @@ pf.censor("Да бля, это просто shit какой-то!")
 
 Note, that order of languages in `languages` argument does matter. If a language tool (profane words list, Spacy model, 
 HunSpell dictionary or pymorphy2 dictionary) is not found for a language that was detected for part of text, 
-`profanityfilter` library automatically fallbacks to the first suitable language in `languages`.
+`profanity-filter` library automatically fallbacks to the first suitable language in `languages`.
 
 As a consequence, if you want to filter just Russian profanity, you still need to specify some other language in 
 `languages` argument to fallback on for loading Spacy model to perform tokenization, because, as noted before, there is 

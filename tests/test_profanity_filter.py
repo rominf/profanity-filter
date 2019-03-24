@@ -1,59 +1,12 @@
-from collections import defaultdict
+from itertools import chain
+
+import spacy
 
 import pytest
 from ordered_set import OrderedSet
 
-from profanity_filter.profanity_filter import (ProfaneWordDictionaries, ProfanityFilter,
-                                               MULTILINGUAL_ANALYSIS_AVAILABLE, Word)
-
-
-TEST_STATEMENT = "Hey, I like unicorns, chocolate, oranges and man's blood, Turd!"
-CLEAN_STATEMENT = "Hey there, I like chocolate too mate."
-
-
-def create_profane_word_dictionaries(**kwargs) -> ProfaneWordDictionaries:
-    return defaultdict(lambda: OrderedSet(), **kwargs)
-
-
-@pytest.fixture
-def profanity_filter():
-    return ProfanityFilter()
-
-
-@pytest.fixture
-def custom_profane_word_dictionaries():
-    return create_profane_word_dictionaries()
-
-
-@pytest.fixture
-def extra_profane_word_dictionaries():
-    return create_profane_word_dictionaries(en=OrderedSet())
-
-
-@pytest.fixture
-def profanity_filter_ru_en():
-    return ProfanityFilter(languages=['ru', 'en'])
-
-
-@pytest.fixture(autouse=True)
-def skip_if_deep_analysis_is_disabled(request, profanity_filter):
-    if request.node.get_marker('skip_if_deep_analysis_is_disabled'):
-        if not profanity_filter.deep_analysis:
-            pytest.skip("Couldn't initialize deep analysis")
-
-
-@pytest.fixture(autouse=True)
-def skip_if_deep_analysis_is_disabled_ru_en(request, profanity_filter_ru_en):
-    if request.node.get_marker('skip_if_deep_analysis_is_disabled'):
-        if not profanity_filter_ru_en.deep_analysis:
-            pytest.skip("Couldn't initialize deep analysis")
-
-
-@pytest.fixture(autouse=True)
-def skip_if_multilingual_analysis_is_not_available(request):
-    if request.node.get_marker('skip_if_multilingual_analysis_is_not_available'):
-        if not MULTILINGUAL_ANALYSIS_AVAILABLE:
-            pytest.skip("Couldn't initialize multilingual analysis")
+from profanity_filter.types_ import Word
+from tests.conftest import create_profane_word_dictionaries, TEST_STATEMENT, CLEAN_STATEMENT
 
 
 def test_censor_word(profanity_filter):
@@ -94,7 +47,7 @@ def test_custom_profane_word_dictionaries(profanity_filter, custom_profane_word_
     censored = profanity_filter.censor(TEST_STATEMENT)
     assert 'unicorns' not in censored
     assert 'chocolate' not in censored
-    assert 'Turd' in censored
+    assert 'turd' in censored
 
 
 def test_extra_profane_word_dictionaries(profanity_filter, extra_profane_word_dictionaries):
@@ -106,7 +59,7 @@ def test_extra_profane_word_dictionaries(profanity_filter, extra_profane_word_di
     assert 'oranges' in censored
     assert 'Hey' not in censored
     assert 'like' not in censored
-    assert 'Turd' not in censored
+    assert 'turd' not in censored
 
 
 def test_restore_words(profanity_filter, custom_profane_word_dictionaries, extra_profane_word_dictionaries):
@@ -121,23 +74,22 @@ def test_restore_words(profanity_filter, custom_profane_word_dictionaries, extra
 
 
 def test_tokenization(profanity_filter):
-    profanity_filter.custom_profane_word_dictionaries = {'en': ['man']}
-    assert profanity_filter.censor(TEST_STATEMENT) == "Hey, I like unicorns, chocolate, oranges and ***'s blood, Turd!"
+    profanity_filter.custom_profane_word_dictionaries = {'en': ['chocolate']}
+    assert profanity_filter.censor(TEST_STATEMENT) == "Hey, I like unicorns, *********, oranges and man's blood, turd!"
 
 
-def test_lemmatization(profanity_filter):
-    assert profanity_filter.is_profane('FUK')
-    assert profanity_filter.is_profane('Dick')
-    assert profanity_filter.is_profane('DICK')
-    assert profanity_filter.is_profane('dIcK')
-    assert profanity_filter.is_profane('dicks')
-    assert profanity_filter.is_profane('fucks')
+def test_without_deep_analysis(profanity_filter):
+    profanity_filter.deep_analysis = False
+    assert profanity_filter.censor('mulkku0') == 'mulkku0'
+    assert profanity_filter.censor('oofuckoo') == 'oofuckoo'
+    assert profanity_filter.censor('fuckfuck') == 'fuckfuck'
 
 
 @pytest.mark.skip_if_deep_analysis_is_disabled
 def test_deep_analysis(profanity_filter):
     assert profanity_filter.censor('duck') == 'duck'
     assert profanity_filter.censor('sh1t') == '****'
+    assert profanity_filter.censor('sh5t') == '****'
     assert profanity_filter.censor('mulkku0') == '*******'
     assert profanity_filter.censor('oofucko') == '*******'
     assert profanity_filter.censor('fuckfuck') == '********'
@@ -148,19 +100,22 @@ def test_deep_analysis(profanity_filter):
 
 
 @pytest.mark.skip_if_deep_analysis_is_disabled
+def test_deep_analysis_lemmatization(profanity_filter):
+    assert profanity_filter.is_profane('FUK')
+    assert profanity_filter.is_profane('Dick')
+    assert profanity_filter.is_profane('DICK')
+    assert profanity_filter.is_profane('dIcK')
+    assert profanity_filter.is_profane('dicks')
+    assert profanity_filter.is_profane('fucks')
+
+
+@pytest.mark.skip_if_deep_analysis_is_disabled
 def test_deep_analysis_with_censor_whole_words_false(profanity_filter):
     profanity_filter.censor_whole_words = False
     assert not profanity_filter.censor_whole_words
     assert profanity_filter.censor('mulkku0') == '******0'
     assert profanity_filter.censor('oofucko') == 'oo****o'
     assert profanity_filter.censor('h0r1h0r1') == '***1***1'
-
-
-def test_without_deep_analysis(profanity_filter):
-    profanity_filter.deep_analysis = False
-    assert profanity_filter.censor('mulkku0') == 'mulkku0'
-    assert profanity_filter.censor('oofuckoo') == 'oofuckoo'
-    assert profanity_filter.censor('fuckfuck') == 'fuckfuck'
 
 
 def test_russian(profanity_filter_ru_en):
@@ -175,3 +130,22 @@ def test_russian_deep_analysis(profanity_filter_ru_en):
 @pytest.mark.skip_if_multilingual_analysis_is_not_available
 def test_multilingual(profanity_filter_ru_en):
     assert profanity_filter_ru_en.censor("Да бля, это просто shit какой-то!") == "Да ***, это просто **** какой-то!"
+
+
+def test_spacy_component(profanity_filter):
+    nlp = spacy.load('en')
+    nlp.add_pipe(profanity_filter.spacy_component, last=True)
+    doc = nlp(TEST_STATEMENT)
+
+    assert doc._.is_profane
+
+    assert not doc[:-2]._.is_profane and not doc[-1:]._.is_profane
+    assert doc[-2:-1]._.is_profane
+
+    for token in chain(doc[:-2], doc[-1:]):
+        assert token._.censored == token.text
+        assert not token._.is_profane
+        assert token._.original_profane_word is None
+    assert doc[-2]._.censored == '****'
+    assert doc[-2]._.is_profane
+    assert doc[-2]._.original_profane_word == 'turd'

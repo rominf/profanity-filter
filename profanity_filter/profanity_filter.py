@@ -2,11 +2,10 @@ import re
 from collections import defaultdict
 from contextlib import suppress, contextmanager
 from copy import deepcopy
-from dataclasses import dataclass
 from itertools import chain
 from math import floor
 from pathlib import Path
-from typing import Dict, Union, List, Tuple, Set, Optional, Generator, Collection, ContextManager
+from typing import Dict, Union, List, Tuple, Set, Collection, ContextManager
 
 import poetry_version
 import spacy
@@ -16,6 +15,12 @@ import spacy.tokens
 from cached_property import cached_property
 from more_itertools import substrings_indexes
 from ordered_set import OrderedSet
+
+from profanity_filter import spacy_utlis
+from profanity_filter.spacy_component import SpacyProfanityFilterComponent
+from profanity_filter.types_ import (Words, Language, ProfaneWordDictionaries, ProfaneWordDictionariesAcceptable,
+                                     Languages, LanguagesAcceptable, Nlps, Morphs, Spells, Substrings,
+                                     TextSplittedByLanguage, ProfanityFilterError, Word, Config)
 
 
 class DummyHunSpell:
@@ -73,48 +78,6 @@ except ImportError:
     MULTILINGUAL_ANALYSIS_AVAILABLE = False
 
 
-class ProfanityFilterError(Exception):
-    pass
-
-
-@dataclass(frozen=True)
-class Word:
-    uncensored: str
-    censored: str
-    original_profane_word: Optional[str] = None
-
-    def __str__(self):
-        return self.censored
-
-    @cached_property
-    def is_profane(self) -> bool:
-        return self.censored != self.uncensored
-
-
-Words = Dict[str, Word]
-Language = Optional[str]
-ProfaneWordDictionary = 'OrderedSet[str]'
-ProfaneWordDictionaryAcceptable = Collection[str]
-ProfaneWordDictionaries = Dict[Language, ProfaneWordDictionary]
-ProfaneWordDictionariesAcceptable = Dict[Language, ProfaneWordDictionaryAcceptable]
-Languages = 'OrderedSet[Language]'
-LanguagesAcceptable = Collection[Language]
-Nlps = Dict[Language, spacy.language.Language]
-Morphs = Dict[Language, MorphAnalyzer]
-Spells = Dict[Language, HunSpell]
-Substrings = Generator[Tuple[str, int, int], Tuple[int, int], None]
-TextSplittedByLanguage = List[Tuple[Language, str]]
-
-
-@dataclass(frozen=True)
-class Config:
-    censor_char: str = '*'
-    censor_whole_words: bool = True
-    deep_analysis: bool = True
-    languages: Tuple[Language, ...] = ('en', )
-    max_relative_distance: float = 0.34
-
-
 default_config = Config()
 __version__ = poetry_version.extract(source_file=__file__)
 
@@ -163,6 +126,9 @@ class ProfanityFilter:
 
         # What to be censored - should not be modified by user
         self._censor_dictionaries: ProfaneWordDictionaries = None
+
+        with suppress(ValueError):
+            SpacyProfanityFilterComponent.register_extensions()
 
         with self._disabled_cache_clearing():
             # nlps argument is set to {} so that nlps are loaded after clear_cache which loads profane word dictionaries
@@ -223,6 +189,12 @@ class ProfanityFilter:
     def is_profane(self, text: str) -> bool:
         """Returns True if input_text contains any profane words, False otherwise"""
         return self._censor(text=text, return_bool=True)
+
+    @cached_property
+    def spacy_component(self, language: Language = None) -> SpacyProfanityFilterComponent:
+        nlp = self._get_nlp(language)
+        [language] = [language for language, nlp_ in self.nlps.items() if nlp_ == nlp]
+        return SpacyProfanityFilterComponent(profanity_filter=self, nlp=nlp, language=language)
 
     @property
     def censor_char(self) -> str:
@@ -334,25 +306,17 @@ class ProfanityFilter:
 
     @nlps.setter
     def nlps(self, value: Nlps) -> None:
-        def add_all_profane_words_as_special_case_to_not_split_them() -> None:
-            # noinspection PyShadowingNames
-            for language in nlps.keys():
-                for profane_word in self.profane_word_dictionaries[language]:
-                    nlps[language].tokenizer.add_special_case(profane_word, [{spacy.attrs.ORTH: profane_word}])
-
         self.clear_cache()
         if value is not None:
-            nlps = value
+            self._nlps = value
         else:
-            nlps = {}
+            self._nlps = {}
             for language in self.languages:
                 with suppress(OSError):
-                    nlps[language] = spacy.load(language, disable=['parser', 'ner'])
-            if not nlps:
+                    self._nlps[language] = spacy.load(language, disable=['parser', 'ner'])
+                    self._nlps[language].add_pipe(self.spacy_component, last=True)
+            if not self._nlps:
                 raise ProfanityFilterError(f"Couldn't load Spacy model for any of languages: {self.languages_str}")
-        self._nlps_untouched = deepcopy(nlps)
-        add_all_profane_words_as_special_case_to_not_split_them()
-        self._nlps = nlps
 
     @cached_property
     def profane_word_dictionaries(self) -> ProfaneWordDictionaries:
@@ -459,11 +423,6 @@ class ProfanityFilter:
 
     def _update_profane_word_dictionaries(self) -> None:
         _ = self.profane_word_dictionaries
-        # Update nlps's tokenization special cases
-        if self.nlps is not None:
-            with self._disabled_cache_clearing():
-                self.nlps = self._nlps_untouched
-            self._cache_clearing_disabled = False
 
     def _load_profane_word_dictionaries(self) -> None:
         """Loads the dictionaries of profane words from files"""
@@ -477,9 +436,7 @@ class ProfanityFilter:
         return min(self._MAX_MAX_DISTANCE, floor(self.max_relative_distance * length))
 
     def _make_spacy_token(self, language: Language, word: str) -> spacy.tokens.Token:
-        if not hasattr(word, 'text'):
-            word = self._parse(language=language, text=word, merge=True)
-        return word
+        return spacy_utlis.make_token(nlp=self._get_nlp(language), word=word)
 
     def _drop_fully_censored_words(self, substrings: Substrings) -> Substrings:
         return ((word, start, finish)
@@ -524,18 +481,19 @@ class ProfanityFilter:
                          string=word,
                          flags=regex.IGNORECASE)
 
-    def _parse(self, language: Language, text: str, merge: bool) -> Union[spacy.tokens.Doc, spacy.tokens.Token]:
-        nlp = None
+    def _get_nlp(self, language: Language) -> spacy.language.Language:
         # noinspection PyTypeChecker
         languages = OrderedSet([language]) | self.languages
-        for language in languages:
+        for nlp_language in languages:
             with suppress(KeyError):
-                nlp = self.nlps[language]
-                break
-        result = nlp(text)
-        if merge:
-            result = result[:].merge()
-        return result
+                return self.nlps[nlp_language]
+
+    def _parse(self,
+               language: Language,
+               text: str,
+               use_profanity_filter: bool = True) -> spacy.tokens.Doc:
+        nlp = self._get_nlp(language)
+        return spacy_utlis.parse(nlp=nlp, text=text, language=language, use_profanity_filter=use_profanity_filter)
 
     def _get_spells(self, language: Language) -> 'OrderedSet[HunSpell]':
         result = OrderedSet([DummyHunSpell()])
@@ -573,11 +531,8 @@ class ProfanityFilter:
         result = OrderedSet()
         if not word:
             return result
-        try:
-            spacy_lemma = word.lemma_
-        except AttributeError:
-            word = self._parse(language=language, text=word, merge=True)
-            spacy_lemma = word.lemma_
+        word = self._make_spacy_token(language=language, word=word)
+        spacy_lemma = word.lemma_
         result.add(word.text)
         spacy_lemma = spacy_lemma.lower() if spacy_lemma != '-PRON-' else word.lower_
         result.add(spacy_lemma)
@@ -696,7 +651,7 @@ class ProfanityFilter:
                 break
             while True:
                 try:
-                    censored_part = self._parse(language=language, text=censored_part, merge=True)
+                    censored_part = self._make_spacy_token(language=language, word=censored_part)
                     censored_censored_part, no_profanity_inside = self._censor_word_part(language=language,
                                                                                          word=censored_part)
                     if no_profanity_inside:
@@ -776,6 +731,7 @@ class ProfanityFilter:
     def _replace_token(text: str, old: spacy.tokens.Token, new: str) -> str:
         return text[:old.idx] + new + text[old.idx + len(old.text):]
 
+    # noinspection PyProtectedMember
     def _censor(self, text: str, return_bool=False) -> Union[str, bool]:
         """:return: text with any profane words censored or bool (True - text has profane words, False otherwise) if
         return_bool=True"""
@@ -783,14 +739,13 @@ class ProfanityFilter:
         text_parts = self._split_by_language(text=text)
         for language, text_part in text_parts:
             result_part = text_part
-            doc = self._parse(language=language, text=text_part, merge=False)
+            doc = self._parse(language=language, text=text_part)
             for token in doc:
-                censored_word = self._censor_word(word=token, language=language)
-                if censored_word.censored != token.text:
+                if token._.is_profane:
                     if return_bool:
                         return True
                     else:
-                        result_part = self._replace_token(text=result_part, old=token, new=censored_word.censored)
+                        result_part = self._replace_token(text=result_part, old=token, new=token._.censored)
             result += result_part
         if return_bool:
             return False

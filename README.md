@@ -15,6 +15,7 @@
             * [Russian language support](#russian-language-support)
                * [Pymorphy2](#pymorphy2)
          * [Usage](#usage-1)
+      * [Using as a part of Spacy pipeline](#using-as-a-part-of-spacy-pipeline)
       * [Console Executable](#console-executable)
       * [Troubleshooting](#troubleshooting)
       * [Credits](#credits)
@@ -176,6 +177,34 @@ HunSpell dictionary or pymorphy2 dictionary) is not found for a language that wa
 As a consequence, if you want to filter just Russian profanity, you still need to specify some other language in 
 `languages` argument to fallback on for loading Spacy model to perform tokenization, because, as noted before, there is 
 no Spacy model for Russian.
+
+## Using as a part of Spacy pipeline
+You can use `profanity-filter` library as a part of Spacy pipeline. Here is the example:
+```python
+import spacy
+from profanity_filter import ProfanityFilter
+
+profanity_filter = ProfanityFilter()
+
+nlp = spacy.load('en')
+nlp.add_pipe(profanity_filter.spacy_component, last=True)
+
+doc = nlp('This is shiiit!')
+
+doc._.is_profane
+# True
+
+doc[:2]._.is_profane
+# False
+
+for token in doc:
+    print(f'{token}: censored={token._.censored}, is_profane={token._.is_profane}, original_profane_word={token._.origina
+l_profane_word}')
+# This: censored=This, is_profane=False, original_profane_word=None
+# is: censored=is, is_profane=False, original_profane_word=None
+# shiiit: censored=******, is_profane=True, original_profane_word=shit
+# !: censored=!, is_profane=False, original_profane_word=None
+```
 
 ## Console Executable
 

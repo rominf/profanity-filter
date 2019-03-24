@@ -1,7 +1,7 @@
 from sys import exit
 import argparse
 
-from profanity_filter import ProfanityFilter
+from profanity_filter.profanity_filter import ProfanityFilter
 
 
 def main():

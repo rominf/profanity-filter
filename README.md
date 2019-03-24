@@ -3,6 +3,25 @@
 
 <b>PyPI:</b> https://pypi.python.org/pypi/profanity-filter<br>
 
+## Table of contents
+<!--ts-->
+   * [profanity-filter: A Python library for detecting and filtering profanity](#profanity-filter-a-python-library-for-detecting-and-filtering-profanity)
+      * [Table of contents](#table-of-contents)
+      * [Installation](#installation)
+      * [Usage](#usage)
+      * [Deep analysis](#deep-analysis)
+      * [Multilingual support](#multilingual-support)
+         * [Add language](#add-language)
+            * [Russian language support](#russian-language-support)
+               * [Pymorphy2](#pymorphy2)
+         * [Usage](#usage-1)
+      * [Console Executable](#console-executable)
+      * [Credits](#credits)
+
+<!-- Added by: rominf, at: Вс мар 24 17:47:03 MSK 2019 -->
+
+<!--te-->
+
 ## Installation
 `profanity-filter` library is universal, it can detect and filter profanity in any language.
 To accomplish this task it needs profane word dictionaries and language tools with models installed.

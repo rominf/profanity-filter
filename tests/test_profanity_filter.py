@@ -57,12 +57,12 @@ def skip_if_polyglot_is_not_available(request):
 
 
 def test_censor_word(profanity_filter):
-    assert profanity_filter.censor_word('world') == Word(uncensored='world', censored='world')
-    assert profanity_filter.censor_word('shiiit') == Word(
-        uncensored='shiiit',
-        censored='******',
-        original_profane_word='shit'
-    )
+    world_word = profanity_filter.censor_word('world')
+    assert world_word == Word(uncensored='world', censored='world')
+    assert not world_word.is_profane
+    shiiit_word = profanity_filter.censor_word('shiiit')
+    assert shiiit_word == Word(uncensored='shiiit', censored='******', original_profane_word='shit')
+    assert shiiit_word.is_profane
 
 
 def test_is_profane(profanity_filter):

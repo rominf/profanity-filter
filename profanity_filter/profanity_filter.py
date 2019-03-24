@@ -96,6 +96,10 @@ class Word:
     def __str__(self):
         return self.censored
 
+    @cached_property
+    def is_profane(self) -> bool:
+        return self.censored != self.uncensored
+
 
 Words = Dict[str, Word]
 Language = Optional[str]

@@ -219,8 +219,7 @@ class ProfanityFilter:
 
     def censor_word(self, word: Union[str, spacy.tokens.Token], language: Language = None) -> Word:
         """Returns censored word"""
-        if not hasattr(word, 'text'):
-            word = self._parse(language=language, text=word, merge=True)
+        word = self._make_spacy_token(language=language, word=word)
         censored_word_prev = None
         censored_word = Word(uncensored=word.text, censored=word.text)
         while censored_word != censored_word_prev:
@@ -529,6 +528,11 @@ class ProfanityFilter:
 
     def _get_max_distance(self, length: int) -> float:
         return min(self._MAX_MAX_DISTANCE, floor(self.max_relative_distance * length))
+
+    def _make_spacy_token(self, language: Language, word: str) -> spacy.tokens.Token:
+        if not hasattr(word, 'text'):
+            word = self._parse(language=language, text=word, merge=True)
+        return word
 
     @staticmethod
     def _substrings(text: str) -> Substrings:

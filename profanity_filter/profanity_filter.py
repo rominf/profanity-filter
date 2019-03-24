@@ -355,7 +355,7 @@ class ProfanityFilter:
                 with suppress(OSError):
                     nlps[language] = spacy.load(language, disable=['parser', 'ner'])
             if not nlps:
-                raise ProfanityFilterError("Couldn't load Spacy model for any of languages: " + self.languages_str)
+                raise ProfanityFilterError(f"Couldn't load Spacy model for any of languages: {self.languages_str}")
         self._nlps_untouched = deepcopy(nlps)
         add_all_profane_words_as_special_case_to_not_split_them()
         self._nlps = nlps
@@ -456,11 +456,11 @@ class ProfanityFilter:
         # Paths to profane word dictionaries
         self._profane_word_dictionary_files = {}
         for language in self.languages:
-            profane_word_file = self._DATA_DIR / (language + '_profane_words.txt')
+            profane_word_file = self._DATA_DIR / f'{language}_profane_words.txt'
             if profane_word_file.exists():
                 self._profane_word_dictionary_files[language] = profane_word_file
         if not self._profane_word_dictionary_files:
-            raise ProfanityFilterError("Couldn't load profane words for any of languages: " + self.languages_str)
+            raise ProfanityFilterError(f"Couldn't load profane words for any of languages: {self.languages_str}")
 
     def _update_profane_word_dictionaries(self) -> None:
         _ = self.profane_word_dictionaries

@@ -1,6 +1,8 @@
 profanity_filter/data/*.aff
 profanity_filter/data/*.dic
 
+pip-wheel-metadata/
+
 # Created by https://www.gitignore.io/api/python
 
 ### Python ###

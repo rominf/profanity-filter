@@ -537,6 +537,7 @@ class ProfanityFilter:
 
     def _parse(self, language: Language, text: str, merge: bool) -> Union[spacy.tokens.Doc, spacy.tokens.Token]:
         nlp = None
+        # noinspection PyTypeChecker
         languages = OrderedSet([language]) | self.languages
         for language in languages:
             with suppress(KeyError):
@@ -553,6 +554,7 @@ class ProfanityFilter:
             return result
         if language is None:
             return OrderedSet(self.spells.values())
+        # noinspection PyTypeChecker
         languages = OrderedSet([language]) | self.languages
         for language in languages:
             with suppress(KeyError):
@@ -570,6 +572,7 @@ class ProfanityFilter:
         if PYMORPHY2_AVAILABLE:
             if language is None:
                 morphs = OrderedSet(self.morphs.values())
+            # noinspection PyTypeChecker
             languages = OrderedSet([language]) | self.languages
             for language in languages:
                 with suppress(KeyError):
@@ -613,6 +616,7 @@ class ProfanityFilter:
 
     def _get_trie(self, language: Language) -> Trie:
         result = None
+        # noinspection PyTypeChecker
         languages = OrderedSet([language]) | self.languages
         for language in languages:
             with suppress(KeyError):

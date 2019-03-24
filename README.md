@@ -147,7 +147,7 @@ As a consequence, if you want to filter just Russian profanity, you still need t
 `languages` argument to fallback on for loading Spacy model to perform tokenization, because, as noted before, there is 
 no Spacy model for Russian.
 
-# Console Executable
+## Console Executable
 
 ```bash
 $ profanity_filter -h
@@ -167,7 +167,7 @@ optional arguments:
   --show                Print the censored text
 ```
 
-# Credits
+## Credits
 English profane word dictionary: https://github.com/areebbeigh/profanityfilter/ (author Areeb Beigh).
 
 Russian profane word dictionary: https://github.com/PixxxeL/djantimat (author Ivan Sergeev).

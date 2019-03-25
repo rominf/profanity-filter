@@ -79,7 +79,12 @@ Firstly, install `hunspell` and `hunspell-devel` packages with your system packa
 
 For Amazon Linux AMI run:
 ```shell
-$ yum install hunspell
+$ sudo yum install hunspell
+```
+
+For openSUSE run:
+```shell
+$ sudo zypper install hunspell hunspell-devel
 ```
 
 Then run (for English):
@@ -113,7 +118,12 @@ instructions.
 
 For Amazon Linux AMI run:
 ```shell
-$ yum install libicu-devel
+$ sudo yum install libicu-devel
+```
+
+For openSUSE run:
+```shell
+$ sudo zypper install libicu-devel
 ```
 
 Then run:

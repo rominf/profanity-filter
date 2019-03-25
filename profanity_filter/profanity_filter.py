@@ -14,6 +14,7 @@ import spacy.attrs
 import spacy.language
 import spacy.tokens
 from cached_property import cached_property
+from more_itertools import substrings_indexes
 from ordered_set import OrderedSet
 
 
@@ -490,12 +491,6 @@ class ProfanityFilter:
             word = self._parse(language=language, text=word, merge=True)
         return word
 
-    @staticmethod
-    def _substrings(text: str) -> Substrings:
-        return ((text[i:i + length], i, i + length)
-                for length in range(len(text), 0, -1)
-                for i in range(len(text) - length + 1))
-
     def _drop_fully_censored_words(self, substrings: Substrings) -> Substrings:
         return ((word, start, finish)
                 for word, start, finish in substrings
@@ -699,7 +694,7 @@ class ProfanityFilter:
             substrings = (
                 self._drop_substrings(
                     self._drop_fully_censored_words(
-                        self._substrings(censored_word_prev.censored)
+                        substrings_indexes(censored_word_prev.censored, reverse=True)
                     )
                 )
             )

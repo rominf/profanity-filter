@@ -48,19 +48,22 @@ class DummyMorphAnalyzer:
         return [ParseResult()]
 
 
-try:
-    # noinspection PyUnresolvedReferences
+# noinspection PyGlobalUndefined,PyUnresolvedReferences
+def import_deep_analysis_libraries() -> None:
+    global Levenshtein, regex, pyffs
+    global HunSpell, HunSpellError, generate_automaton_to_file, trie_automaton_intersection, LevenshteinAutomaton, Trie
+
     import Levenshtein
-    # noinspection PyUnresolvedReferences
     import regex
     from hunspell_serializable import HunSpell, HunSpellError
-    # noinspection PyUnresolvedReferences
     from pyffs.automaton_management import generate_automaton_to_file
-    # noinspection PyUnresolvedReferences
     from pyffs.fuzzy_search.algorithms import trie_automaton_intersection
-    # noinspection PyUnresolvedReferences
     from pyffs.fuzzy_search.levenshtein_automaton import LevenshteinAutomaton
     from pyffs.fuzzy_search.trie import Trie
+
+
+try:
+    import_deep_analysis_libraries()
     DEEP_ANALYSIS_AVAILABLE = True
 except ImportError:
     HunSpell = DummyHunSpell
@@ -68,20 +71,34 @@ except ImportError:
     Trie = None
     DEEP_ANALYSIS_AVAILABLE = False
 
-try:
-    # noinspection PyPackageRequirements
+
+# noinspection PyGlobalUndefined,PyPackageRequirements,PyUnresolvedReferences
+def import_pymorphy2() -> None:
+    global MorphAnalyzer
+
     from pymorphy2 import MorphAnalyzer
+
+
+try:
+    import_pymorphy2()
     PYMORPHY2_AVAILABLE = True
 except ImportError:
     MorphAnalyzer = DummyMorphAnalyzer
     PYMORPHY2_AVAILABLE = False
 
-try:
-    # noinspection PyUnresolvedReferences,PyPackageRequirements
+
+# noinspection PyUnresolvedReferences,PyPackageRequirements,PyGlobalUndefined
+def import_multilingual_libraries() -> None:
+    global polyglot
+
     import polyglot.detect
-    POLYGLOT_AVAILABLE = True
+
+
+try:
+    import_multilingual_libraries()
+    MULTILINGUAL_AVAILABLE = True
 except ImportError:
-    POLYGLOT_AVAILABLE = False
+    MULTILINGUAL_AVAILABLE = False
 
 
 class ProfanityFilterError(Exception):
@@ -378,6 +395,7 @@ class ProfanityFilter:
             result[language] |= self.extra_profane_word_dictionaries[language]
 
         if self.deep_analysis:
+            # noinspection PyCallingNonCallable
             self._trie = {language: Trie(words=result[language], alphabet=self._alphabet)
                           for language in self.languages}
             for length in range(self._MAX_MAX_DISTANCE + 1):
@@ -740,7 +758,7 @@ class ProfanityFilter:
     def _detect_languages(self, text: str) -> Languages:
         fallback_language = self.languages[0]
         fallback_result = OrderedSet([fallback_language])
-        if not POLYGLOT_AVAILABLE:
+        if not MULTILINGUAL_AVAILABLE:
             result = fallback_result
         else:
             polyglot_output = polyglot.detect.Detector(text, quiet=True)

@@ -1,7 +1,7 @@
 from .profanity_filter import (
     Config,
     DEEP_ANALYSIS_AVAILABLE,
-    POLYGLOT_AVAILABLE,
+    MULTILINGUAL_AVAILABLE,
     ProfanityFilter,
     ProfanityFilterError,
     Word,

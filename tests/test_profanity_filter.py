@@ -3,7 +3,7 @@ from collections import defaultdict
 import pytest
 from ordered_set import OrderedSet
 
-from profanity_filter import ProfanityFilter, POLYGLOT_AVAILABLE, Word
+from profanity_filter import ProfanityFilter, MULTILINGUAL_AVAILABLE, Word
 from profanity_filter.profanity_filter import ProfaneWordDictionaries
 
 
@@ -52,7 +52,7 @@ def skip_if_deep_analysis_is_disabled_ru_en(request, profanity_filter_ru_en):
 @pytest.fixture(autouse=True)
 def skip_if_polyglot_is_not_available(request):
     if request.node.get_marker('skip_if_polyglot_is_not_available'):
-        if not POLYGLOT_AVAILABLE:
+        if not MULTILINGUAL_AVAILABLE:
             pytest.skip("Couldn't initialize polyglot for language detection")
 
 

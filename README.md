@@ -16,9 +16,10 @@
                * [Pymorphy2](#pymorphy2)
          * [Usage](#usage-1)
       * [Console Executable](#console-executable)
+      * [Troubleshooting](#troubleshooting)
       * [Credits](#credits)
 
-<!-- Added by: rominf, at: Вс мар 24 17:47:03 MSK 2019 -->
+<!-- Added by: rominf, at: Ср мар 27 10:10:32 MSK 2019 -->
 
 <!--te-->
 
@@ -194,6 +195,29 @@ optional arguments:
   -o OUTPUT_FILE, --output OUTPUT_FILE
                         Write the censored output to a file
   --show                Print the censored text
+```
+
+## Troubleshooting
+You can always check will deep analysis, `pymorphy2` support, and multilingual work by inspecting the value of
+corresponding variables. If everything is set up correctly you will see following:
+```python
+from profanity_filter import DEEP_ANALYSIS_AVAILABLE, PYMORHY2_AVAILABLE, MULTILINGUAL_AVAILABLE
+
+print(DEEP_ANALYSIS_AVAILABLE)
+# True
+
+print(PYMORHY2_AVAILABLE)
+# True
+
+print(MULTILINGUAL_AVAILABLE)
+# True
+```
+
+If something is not true, you can use special functions that import dependencies to see the import exceptions:
+```python
+from profanity_filter import import_deep_analysis_libraries, import_pymorphy2, import_multilingual_libraries
+
+# then call the function you need and observe the result
 ```
 
 ## Credits

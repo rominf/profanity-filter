@@ -1,7 +1,7 @@
 # profanity-filter: A Python library for detecting and filtering profanity
-[![Build Status](https://travis-ci.org/rominf/profanity-filter.svg?branch=master)](https://travis-ci.org/rominf/profanity-filter)
-
-<b>PyPI:</b> https://pypi.python.org/pypi/profanity-filter<br>
+[![License](https://img.shields.io/pypi/l/profanity-filter.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/profanity-filter.svg)
+[![PyPI](https://img.shields.io/pypi/v/profanity-filter.svg)](https://pypi.org/project/profanity-filter/)
 
 ## Table of contents
 <!--ts-->

@@ -48,22 +48,8 @@ class DummyMorphAnalyzer:
         return [ParseResult()]
 
 
-# noinspection PyGlobalUndefined,PyUnresolvedReferences
-def import_deep_analysis_libraries() -> None:
-    global Levenshtein, regex, pyffs
-    global HunSpell, HunSpellError, generate_automaton_to_file, trie_automaton_intersection, LevenshteinAutomaton, Trie
-
-    import Levenshtein
-    import regex
-    from hunspell_serializable import HunSpell, HunSpellError
-    from pyffs.automaton_management import generate_automaton_to_file
-    from pyffs.fuzzy_search.algorithms import trie_automaton_intersection
-    from pyffs.fuzzy_search.levenshtein_automaton import LevenshteinAutomaton
-    from pyffs.fuzzy_search.trie import Trie
-
-
 try:
-    import_deep_analysis_libraries()
+    from profanity_filter.analysis.deep import *
     DEEP_ANALYSIS_AVAILABLE = True
 except ImportError:
     HunSpell = DummyHunSpell
@@ -72,30 +58,16 @@ except ImportError:
     DEEP_ANALYSIS_AVAILABLE = False
 
 
-# noinspection PyGlobalUndefined,PyPackageRequirements,PyUnresolvedReferences
-def import_pymorphy2() -> None:
-    global MorphAnalyzer
-
-    from pymorphy2 import MorphAnalyzer
-
-
 try:
-    import_pymorphy2()
-    PYMORPHY2_AVAILABLE = True
+    from profanity_filter.analysis.morphological import *
+    MORPHOLOGICAL_ANALYSIS_AVAILABLE = True
 except ImportError:
     MorphAnalyzer = DummyMorphAnalyzer
-    PYMORPHY2_AVAILABLE = False
-
-
-# noinspection PyUnresolvedReferences,PyPackageRequirements,PyGlobalUndefined
-def import_multilingual_libraries() -> None:
-    global polyglot
-
-    import polyglot.detect
+    MORPHOLOGICAL_ANALYSIS_AVAILABLE = False
 
 
 try:
-    import_multilingual_libraries()
+    from profanity_filter.analysis.multilingual import *
     MULTILINGUAL_AVAILABLE = True
 except ImportError:
     MULTILINGUAL_AVAILABLE = False
@@ -343,18 +315,18 @@ class ProfanityFilter:
 
     @morphs.setter
     def morphs(self, value: Morphs) -> None:
-        global PYMORPHY2_AVAILABLE
-        if PYMORPHY2_AVAILABLE:
+        global MORPHOLOGICAL_ANALYSIS_AVAILABLE
+        if MORPHOLOGICAL_ANALYSIS_AVAILABLE:
             self.clear_cache()
             if value is not None:
                 self._morphs = value
             else:
                 self._morphs = {}
-                PYMORPHY2_AVAILABLE = False
+                MORPHOLOGICAL_ANALYSIS_AVAILABLE = False
                 for language in self.languages:
                     with suppress(ValueError):
                         self._morphs[language] = MorphAnalyzer(lang=language)
-                        PYMORPHY2_AVAILABLE = True
+                        MORPHOLOGICAL_ANALYSIS_AVAILABLE = True
 
     @property
     def nlps(self) -> Nlps:
@@ -586,7 +558,7 @@ class ProfanityFilter:
 
     def _normal_forms(self, language: Language, word: str) -> 'OrderedSet[str]':
         morphs = OrderedSet([DummyMorphAnalyzer])
-        if PYMORPHY2_AVAILABLE:
+        if MORPHOLOGICAL_ANALYSIS_AVAILABLE:
             if language is None:
                 morphs = OrderedSet(self.morphs.values())
             # noinspection PyTypeChecker

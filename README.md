@@ -198,26 +198,26 @@ optional arguments:
 ```
 
 ## Troubleshooting
-You can always check will deep analysis, `pymorphy2` support, and multilingual work by inspecting the value of
-corresponding variables. If everything is set up correctly you will see following:
+You can always check will deep, morphological, and multilingual analyses work by inspecting the value of corresponding
+variables. If everything is set up correctly you will see following:
 ```python
-from profanity_filter import DEEP_ANALYSIS_AVAILABLE, PYMORHY2_AVAILABLE, MULTILINGUAL_AVAILABLE
+from profanity_filter import DEEP_ANALYSIS_AVAILABLE, MORPHOLOGICAL_ANALYSIS_AVAILABLE, MULTILINGUAL_ANALYSIS_AVAILABLE
 
 print(DEEP_ANALYSIS_AVAILABLE)
 # True
 
-print(PYMORHY2_AVAILABLE)
+print(MORPHOLOGICAL_ANALYSIS_AVAILABLE)
 # True
 
-print(MULTILINGUAL_AVAILABLE)
+print(MULTILINGUAL_ANALYSIS_AVAILABLE)
 # True
 ```
 
-If something is not true, you can use special functions that import dependencies to see the import exceptions:
+If some of variables are not `True`, you can import dependencies yourself to see the import exceptions:
 ```python
-from profanity_filter import import_deep_analysis_libraries, import_pymorphy2, import_multilingual_libraries
-
-# then call the function you need and observe the result
+from profanity_filter.analysis.deep import *
+from profanity_filter.analysis.morphological import *
+from profanity_filter.analysis.multilingual import *
 ```
 
 ## Credits

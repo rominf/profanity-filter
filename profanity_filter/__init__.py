@@ -1,11 +1,12 @@
-from .profanity_filter import (
+from profanity_filter.profanity_filter import (
     Config,
     DEEP_ANALYSIS_AVAILABLE,
-    MULTILINGUAL_AVAILABLE,
+    MORPHOLOGICAL_ANALYSIS_AVAILABLE,
+    MULTILINGUAL_ANALYSIS_AVAILABLE,
     ProfanityFilter,
     ProfanityFilterError,
     Word,
     __version__,
     default_config,
 )
-from .console import main
+from profanity_filter.console import main

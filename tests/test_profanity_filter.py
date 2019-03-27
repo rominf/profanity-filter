@@ -3,8 +3,8 @@ from collections import defaultdict
 import pytest
 from ordered_set import OrderedSet
 
-from profanity_filter import ProfanityFilter, MULTILINGUAL_AVAILABLE, Word
-from profanity_filter.profanity_filter import ProfaneWordDictionaries
+from profanity_filter.profanity_filter import (ProfaneWordDictionaries, ProfanityFilter,
+                                               MULTILINGUAL_ANALYSIS_AVAILABLE, Word)
 
 
 TEST_STATEMENT = "Hey, I like unicorns, chocolate, oranges and man's blood, Turd!"
@@ -50,10 +50,10 @@ def skip_if_deep_analysis_is_disabled_ru_en(request, profanity_filter_ru_en):
 
 
 @pytest.fixture(autouse=True)
-def skip_if_polyglot_is_not_available(request):
-    if request.node.get_marker('skip_if_polyglot_is_not_available'):
-        if not MULTILINGUAL_AVAILABLE:
-            pytest.skip("Couldn't initialize polyglot for language detection")
+def skip_if_multilingual_analysis_is_not_available(request):
+    if request.node.get_marker('skip_if_multilingual_analysis_is_not_available'):
+        if not MULTILINGUAL_ANALYSIS_AVAILABLE:
+            pytest.skip("Couldn't initialize multilingual analysis")
 
 
 def test_censor_word(profanity_filter):
@@ -172,6 +172,6 @@ def test_russian_deep_analysis(profanity_filter_ru_en):
     assert profanity_filter_ru_en.censor('забляканный') == '***********'
 
 
-@pytest.mark.skip_if_polyglot_is_not_available
+@pytest.mark.skip_if_multilingual_analysis_is_not_available
 def test_multilingual(profanity_filter_ru_en):
     assert profanity_filter_ru_en.censor("Да бля, это просто shit какой-то!") == "Да ***, это просто **** какой-то!"

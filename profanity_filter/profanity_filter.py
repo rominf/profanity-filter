@@ -68,9 +68,9 @@ except ImportError:
 
 try:
     from profanity_filter.analysis.multilingual import *
-    MULTILINGUAL_AVAILABLE = True
+    MULTILINGUAL_ANALYSIS_AVAILABLE = True
 except ImportError:
-    MULTILINGUAL_AVAILABLE = False
+    MULTILINGUAL_ANALYSIS_AVAILABLE = False
 
 
 class ProfanityFilterError(Exception):
@@ -730,7 +730,7 @@ class ProfanityFilter:
     def _detect_languages(self, text: str) -> Languages:
         fallback_language = self.languages[0]
         fallback_result = OrderedSet([fallback_language])
-        if not MULTILINGUAL_AVAILABLE:
+        if not MULTILINGUAL_ANALYSIS_AVAILABLE:
             result = fallback_result
         else:
             polyglot_output = polyglot.detect.Detector(text, quiet=True)

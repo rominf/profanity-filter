@@ -607,7 +607,7 @@ class ProfanityFilter:
             word = self._parse(language=language, text=word, merge=True)
             spacy_lemma = word.lemma_
         result.add(word.text)
-        spacy_lemma = spacy_lemma if spacy_lemma != '-PRON-' else word.lower_
+        spacy_lemma = spacy_lemma.lower() if spacy_lemma != '-PRON-' else word.lower_
         result.add(spacy_lemma)
         result |= self._stems(language=language, word=word.text)
         result |= self._normal_forms(language=language, word=word.text)

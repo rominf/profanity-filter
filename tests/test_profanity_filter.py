@@ -63,6 +63,8 @@ def test_censor_word(profanity_filter):
     shiiit_word = profanity_filter.censor_word('shiiit')
     assert shiiit_word == Word(uncensored='shiiit', censored='******', original_profane_word='shit')
     assert shiiit_word.is_profane
+    fuk_word = profanity_filter.censor_word('FUK')
+    assert fuk_word == Word(uncensored='FUK', censored='***', original_profane_word='fuk')
 
 
 def test_is_profane(profanity_filter):
@@ -124,6 +126,7 @@ def test_tokenization(profanity_filter):
 
 
 def test_lemmatization(profanity_filter):
+    assert profanity_filter.is_profane('FUK')
     assert profanity_filter.is_profane('Dick')
     assert profanity_filter.is_profane('DICK')
     assert profanity_filter.is_profane('dIcK')

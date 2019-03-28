@@ -184,9 +184,8 @@ You can use `profanity-filter` library as a part of Spacy pipeline. Here is the 
 import spacy
 from profanity_filter import ProfanityFilter
 
-profanity_filter = ProfanityFilter()
-
 nlp = spacy.load('en')
+profanity_filter = ProfanityFilter(nlps={'en': nlp})  # reuse spacy Language (optional)
 nlp.add_pipe(profanity_filter.spacy_component, last=True)
 
 doc = nlp('This is shiiit!')
@@ -198,8 +197,11 @@ doc[:2]._.is_profane
 # False
 
 for token in doc:
-    print(f'{token}: censored={token._.censored}, is_profane={token._.is_profane}, original_profane_word={token._.origina
-l_profane_word}')
+    print(f'{token}: '
+          f'censored={token._.censored}, '
+          f'is_profane={token._.is_profane}, '
+          f'original_profane_word={token._.original_profane_word}'
+    )
 # This: censored=This, is_profane=False, original_profane_word=None
 # is: censored=is, is_profane=False, original_profane_word=None
 # shiiit: censored=******, is_profane=True, original_profane_word=shit

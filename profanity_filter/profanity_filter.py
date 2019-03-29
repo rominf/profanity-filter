@@ -508,8 +508,11 @@ class ProfanityFilter:
 
     def _stems(self, language: Language, word: str) -> 'OrderedSet[str]':
         spells = self._get_spells(language=language)
-        return OrderedSet([stem_bytes.decode(spell.get_dic_encoding())
-                           for spell in spells for stem_bytes in spell.stem(word)])
+        try:
+            return OrderedSet([stem_bytes.decode(spell.get_dic_encoding())
+                               for spell in spells for stem_bytes in spell.stem(word)])
+        except UnicodeEncodeError:
+            return OrderedSet()
 
     def _normal_forms(self, language: Language, word: str) -> 'OrderedSet[str]':
         morph = DummyMorphAnalyzer
@@ -536,7 +539,10 @@ class ProfanityFilter:
         return result
 
     def _is_dictionary_word(self, language: Language, word: str) -> bool:
-        return any(spell.spell(word) for spell in self._get_spells(language=language))
+        try:
+            return any(spell.spell(word) for spell in self._get_spells(language=language))
+        except UnicodeEncodeError:
+            return False
 
     def _keep_only_letters_or_dictionary_word(self, language: Language, word: Union[str, spacy.tokens.Token]) -> str:
         with suppress(AttributeError):

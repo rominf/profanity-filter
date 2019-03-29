@@ -287,18 +287,15 @@ class ProfanityFilter:
 
     @morphs.setter
     def morphs(self, value: Morphs) -> None:
-        global MORPHOLOGICAL_ANALYSIS_AVAILABLE
         if MORPHOLOGICAL_ANALYSIS_AVAILABLE:
             self.clear_cache()
             if value is not None:
                 self._morphs = value
             else:
                 self._morphs = {}
-                MORPHOLOGICAL_ANALYSIS_AVAILABLE = False
                 for language in self.languages:
                     with suppress(ValueError):
                         self._morphs[language] = MorphAnalyzer(lang=language)
-                        MORPHOLOGICAL_ANALYSIS_AVAILABLE = True
 
     @property
     def nlps(self) -> Nlps:
@@ -515,17 +512,15 @@ class ProfanityFilter:
                            for spell in spells for stem_bytes in spell.stem(word)])
 
     def _normal_forms(self, language: Language, word: str) -> 'OrderedSet[str]':
-        morphs = OrderedSet([DummyMorphAnalyzer])
+        morph = DummyMorphAnalyzer
         if MORPHOLOGICAL_ANALYSIS_AVAILABLE:
-            if language is None:
-                morphs = OrderedSet(self.morphs.values())
             # noinspection PyTypeChecker
             languages = OrderedSet([language]) | self.languages
             for language in languages:
                 with suppress(KeyError):
-                    morphs = OrderedSet([self.morphs[language]])
+                    morph = self.morphs[language]
                     break
-        return OrderedSet([morph.parse(word=word)[0].normal_form for morph in morphs])
+        return OrderedSet([morph.parse(word=word)[0].normal_form])
 
     def _lemmas(self, language: Language, word: Union[str, spacy.tokens.Token]) -> 'OrderedSet[str]':
         result = OrderedSet()

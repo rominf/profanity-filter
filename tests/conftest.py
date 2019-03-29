@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 import pytest
+import spacy.language
 from ordered_set import OrderedSet
 
 from profanity_filter.profanity_filter import ProfanityFilter, MULTILINGUAL_ANALYSIS_AVAILABLE
@@ -12,36 +13,51 @@ def create_profane_word_dictionaries(**kwargs) -> ProfaneWordDictionaries:
 
 
 @pytest.fixture
-def profanity_filter():
-    return ProfanityFilter()
-
-
-@pytest.fixture
-def custom_profane_word_dictionaries():
+def empty_profane_word_dictionaries() -> ProfaneWordDictionaries:
     return create_profane_word_dictionaries()
 
 
 @pytest.fixture
-def extra_profane_word_dictionaries():
-    return create_profane_word_dictionaries(en=OrderedSet())
+def pf() -> ProfanityFilter:
+    return ProfanityFilter()
 
 
 @pytest.fixture
-def profanity_filter_ru_en():
+def pf_with_deep_analysis_false(pf) -> ProfanityFilter:
+    pf.deep_analysis = False
+    return pf
+
+
+@pytest.fixture
+def pf_with_censor_whole_words_false(pf) -> ProfanityFilter:
+    pf.censor_whole_words = False
+    return pf
+
+
+@pytest.fixture
+def pf_ru_en() -> ProfanityFilter:
     return ProfanityFilter(languages=['ru', 'en'])
 
 
+@pytest.fixture
+def nlp() -> spacy.language.Language:
+    nlp = spacy.load('en')
+    pf = ProfanityFilter(nlps={'en': nlp})
+    nlp.add_pipe(pf.spacy_component, last=True)
+    return nlp
+
+
 @pytest.fixture(autouse=True)
-def skip_if_deep_analysis_is_disabled(request, profanity_filter):
+def skip_if_deep_analysis_is_disabled(request, pf):
     if request.node.get_marker('skip_if_deep_analysis_is_disabled'):
-        if not profanity_filter.deep_analysis:
+        if not pf.deep_analysis:
             pytest.skip("Couldn't initialize deep analysis")
 
 
 @pytest.fixture(autouse=True)
-def skip_if_deep_analysis_is_disabled_ru_en(request, profanity_filter_ru_en):
+def skip_if_deep_analysis_is_disabled_ru_en(request, pf_ru_en):
     if request.node.get_marker('skip_if_deep_analysis_is_disabled'):
-        if not profanity_filter_ru_en.deep_analysis:
+        if not pf_ru_en.deep_analysis:
             pytest.skip("Couldn't initialize deep analysis")
 
 

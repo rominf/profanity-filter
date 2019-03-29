@@ -28,7 +28,7 @@ class SpacyProfanityFilterComponent:
         i = 0
         while i < len(doc):
             j = i + 1
-            while j < len(doc) and not doc[j - 1].whitespace_ and not doc[j].is_punct:
+            while j < len(doc) and not doc[j - 1].whitespace_ and not doc[j - 1].is_punct and not doc[j].is_punct:
                 j += 1
             span = self._censor_spaceless_span(doc[i:j], language=language)
             if stop_on_first_profane_word and span._.is_profane:

@@ -327,7 +327,7 @@ class ProfanityFilter:
             self._load_profane_word_dictionaries()
             result = deepcopy(self._censor_dictionaries)
 
-        for language in self.languages:
+        for language in self.languages.intersection(list(self.extra_profane_word_dictionaries.keys())):
             result[language] |= self.extra_profane_word_dictionaries[language]
 
         if self.deep_analysis:

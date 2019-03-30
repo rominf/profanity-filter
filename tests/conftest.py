@@ -14,7 +14,7 @@ from profanity_filter.types_ import Config, ProfaneWordDictionaries, AnalysesTyp
 @dataclass(frozen=True)
 class TestConfig(Config):
     analyses: AnalysesTypes = frozenset()
-    censor_whole_words: bool = False
+    censor_whole_words: bool = True
     deep_copy: bool = False
     languages: Tuple[Language, ...] = ('en', )
 

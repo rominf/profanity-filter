@@ -1,11 +1,13 @@
 import pytest
 from ordered_set import OrderedSet
 
-from profanity_filter.types_ import Word
+from profanity_filter.types_ import Word, AnalysisType
 from tests.conftest import create_profane_word_dictionaries, TEST_STATEMENT, CLEAN_STATEMENT
 
 
+@pytest.mark.skip_if_deep_analysis_is_disabled
 def test_censor_word(pf):
+    assert AnalysisType.DEEP in pf.analyses
     world_word = pf.censor_word('world')
     assert world_word == Word(uncensored='world', censored='world')
     assert not world_word.is_profane
@@ -68,15 +70,16 @@ def test_tokenization(pf):
     assert pf.censor(TEST_STATEMENT) == "Hey, I like unicorns, *********, oranges and man's blood, turd!"
 
 
-def test_deep_analysis_false(pf_with_deep_analysis_false):
-    pf = pf_with_deep_analysis_false
-    assert not pf.deep_analysis
+def test_without_deep_analysis(pf_without_deep_analysis):
+    pf = pf_without_deep_analysis
+    assert AnalysisType.DEEP not in pf.analyses
     assert pf.censor_word('mulkku0') == Word(uncensored='mulkku0', censored='mulkku0')
     assert pf.censor_word('oofuko') == Word(uncensored='oofuko', censored='oofuko')
 
 
 @pytest.mark.skip_if_deep_analysis_is_disabled
 def test_deep_analysis(pf):
+    assert AnalysisType.DEEP in pf.analyses
     assert pf.censor_word('duck') == Word(uncensored='duck', censored='duck')
     assert pf.censor_word('addflxppxpfs') == Word(uncensored='addflxppxpfs', censored='addflxppxpfs')
     assert pf.censor_word('mulkku0') == Word(uncensored='mulkku0', censored='*******', original_profane_word='mulkku')
@@ -115,6 +118,7 @@ def test_deep_analysis_tokenization_and_keep_only_letters(nlp):
 
 @pytest.mark.skip_if_deep_analysis_is_disabled
 def test_deep_analysis_lemmatization(pf):
+    assert AnalysisType.DEEP in pf.analyses
     assert pf.censor_word('Dick') == Word(uncensored='Dick', censored='****', original_profane_word='dick')
     assert pf.censor_word('DICK') == Word(uncensored='DICK', censored='****', original_profane_word='dick')
     assert pf.censor_word('dIcK') == Word(uncensored='dIcK', censored='****', original_profane_word='dick')
@@ -125,6 +129,7 @@ def test_deep_analysis_lemmatization(pf):
 @pytest.mark.skip_if_deep_analysis_is_disabled
 def test_deep_analysis_with_censor_whole_words_false(pf_with_censor_whole_words_false):
     pf = pf_with_censor_whole_words_false
+    assert AnalysisType.DEEP in pf.analyses
     assert not pf.censor_whole_words
     assert pf.censor_word('mulkku0') == Word(uncensored='mulkku0', censored='******0', original_profane_word='mulkku')
     assert pf.censor_word('oofuko') == Word(uncensored='oofuko', censored='oo***o', original_profane_word='fuck')
@@ -145,6 +150,7 @@ def test_russian(pf_ru_en):
 @pytest.mark.skip_if_deep_analysis_is_disabled
 def test_russian_deep_analysis(pf_ru_en):
     pf = pf_ru_en
+    assert AnalysisType.DEEP in pf.analyses
     assert pf.censor_word('бл@ка') == Word(uncensored='бл@ка', censored='*****', original_profane_word='бля')
 
 

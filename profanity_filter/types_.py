@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional, Dict, Collection, Generator, Tuple, List
+from enum import Enum
+from typing import Optional, Dict, Collection, Generator, Tuple, List, FrozenSet
 
 import spacy.language
 from cached_property import cached_property
@@ -25,7 +26,14 @@ class Word:
         return self.censored != self.uncensored
 
 
+class AnalysisType(Enum):
+    DEEP = 'deep'
+    MORPHOLOGICAL = 'morphological'
+    MULTILINGUAL = 'multilingual'
+
+
 Words = Dict[str, Word]
+AnalysesTypes = FrozenSet[AnalysisType]
 Language = Optional[str]
 ProfaneWordDictionary = 'OrderedSet[str]'
 ProfaneWordDictionaryAcceptable = Collection[str]
@@ -40,10 +48,11 @@ Substrings = Generator[Tuple[str, int, int], Tuple[int, int], None]
 TextSplittedByLanguage = List[Tuple[Language, str]]
 
 
+# noinspection PyTypeChecker
 @dataclass(frozen=True)
 class Config:
+    analyses: AnalysesTypes = frozenset(AnalysisType)
     censor_char: str = '*'
     censor_whole_words: bool = True
-    deep_analysis: bool = True
     languages: Tuple[Language, ...] = ('en', )
     max_relative_distance: float = 0.34

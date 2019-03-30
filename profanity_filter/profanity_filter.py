@@ -20,7 +20,8 @@ from profanity_filter import spacy_utlis
 from profanity_filter.spacy_component import SpacyProfanityFilterComponent
 from profanity_filter.types_ import (Words, Language, ProfaneWordDictionaries, ProfaneWordDictionariesAcceptable,
                                      Languages, LanguagesAcceptable, Nlps, Morphs, Spells, Substrings,
-                                     TextSplittedByLanguage, ProfanityFilterError, Word, Config)
+                                     TextSplittedByLanguage, ProfanityFilterError, Word, Config, AnalysisType,
+                                     AnalysesTypes)
 
 
 class DummyHunSpell:
@@ -53,29 +54,29 @@ class DummyMorphAnalyzer:
         return [ParseResult()]
 
 
-try:
+# Defining variables in case of unavailable analyses
+HunSpell = DummyHunSpell
+HunSpellError = None
+Trie = None
+MorphAnalyzer = DummyMorphAnalyzer
+
+
+_available_analyses_list = []
+
+with suppress(ImportError):
     from profanity_filter.analysis.deep import *
-    DEEP_ANALYSIS_AVAILABLE = True
-except ImportError:
-    HunSpell = DummyHunSpell
-    HunSpellError = None
-    Trie = None
-    DEEP_ANALYSIS_AVAILABLE = False
+    _available_analyses_list.append(AnalysisType.DEEP)
 
-
-try:
+with suppress(ImportError):
     from profanity_filter.analysis.morphological import *
-    MORPHOLOGICAL_ANALYSIS_AVAILABLE = True
-except ImportError:
-    MorphAnalyzer = DummyMorphAnalyzer
-    MORPHOLOGICAL_ANALYSIS_AVAILABLE = False
+    _available_analyses_list.append(AnalysisType.MORPHOLOGICAL)
 
-
-try:
+with suppress(ImportError):
     from profanity_filter.analysis.multilingual import *
-    MULTILINGUAL_ANALYSIS_AVAILABLE = True
-except ImportError:
-    MULTILINGUAL_ANALYSIS_AVAILABLE = False
+    _available_analyses_list.append(AnalysisType.MULTILINGUAL)
+
+
+AVAILABLE_ANALYSES: AnalysesTypes = frozenset(_available_analyses_list)
 
 
 default_config = Config()
@@ -84,26 +85,28 @@ __version__ = poetry_version.extract(source_file=__file__)
 
 class ProfanityFilter:
     def __init__(self,
+                 languages: LanguagesAcceptable = default_config.languages,
+                 *,
+                 analyses: AnalysesTypes = default_config.analyses,
                  censor_char: str = default_config.censor_char,
                  censor_whole_words: bool = default_config.censor_whole_words,
                  custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
-                 deep_analysis: bool = default_config.deep_analysis,
                  extra_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
-                 languages: LanguagesAcceptable = default_config.languages,
                  max_relative_distance: float = default_config.max_relative_distance,
                  morphs: Morphs = None,
                  nlps: Nlps = None,
-                 spells: Spells = None):
+                 spells: Spells = None,
+                 ):
         # Path to data dir
         self._BASE_DIR = Path(__file__).absolute().parent
         self._DATA_DIR = self._BASE_DIR / 'data'
 
         self._MAX_MAX_DISTANCE = 3
+        self._analyses: AnalysesTypes = frozenset()
         self._cache_clearing_disabled: bool = False
         self._censor_char: str = None
         self._censor_whole_words: bool = None
         self._custom_censor_dictionaries: ProfaneWordDictionaries = None
-        self._deep_analysis: bool = None
         self._extra_censor_dictionaries: ProfaneWordDictionaries = None
         self._languages: Languages = OrderedSet()
         self._max_relative_distance: float = None
@@ -132,37 +135,39 @@ class ProfanityFilter:
 
         with self._disabled_cache_clearing():
             # nlps argument is set to {} so that nlps are loaded after clear_cache which loads profane word dictionaries
-            self.config(censor_char=censor_char,
-                        censor_whole_words=censor_whole_words,
-                        custom_censor_dictionaries=custom_censor_dictionaries,
-                        deep_analysis=deep_analysis,
-                        extra_censor_dictionaries=extra_censor_dictionaries,
-                        languages=languages,
-                        max_relative_distance=max_relative_distance,
-                        morphs=morphs,
-                        nlps=nlps,
-                        spells=spells,
-                        )
+            self.config(
+                languages=languages,
+                analyses=analyses,
+                censor_char=censor_char,
+                censor_whole_words=censor_whole_words,
+                custom_censor_dictionaries=custom_censor_dictionaries,
+                extra_censor_dictionaries=extra_censor_dictionaries,
+                max_relative_distance=max_relative_distance,
+                morphs=morphs,
+                nlps=nlps,
+                spells=spells,
+            )
 
         self.clear_cache()
 
     # noinspection PyAttributeOutsideInit
     def config(self,
+               languages: LanguagesAcceptable = default_config.languages,
+               *,
+               analyses: AnalysesTypes = default_config.analyses,
                censor_char: str = default_config.censor_char,
                censor_whole_words: bool = default_config.censor_whole_words,
                custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
-               deep_analysis: bool = default_config.deep_analysis,
                extra_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
-               languages: LanguagesAcceptable = default_config.languages,
                max_relative_distance: float = default_config.max_relative_distance,
                morphs: Morphs = None,
                nlps: Nlps = None,
                spells: Spells = None,
                ):
+        self.analyses = analyses
         self.censor_char = censor_char
         self.censor_whole_words = censor_whole_words
         self.custom_profane_word_dictionaries = custom_censor_dictionaries
-        self.deep_analysis = deep_analysis
         self.extra_profane_word_dictionaries = extra_censor_dictionaries
         self.max_relative_distance = max_relative_distance
         self._set_languages(languages, load_morphs=morphs is None, load_nlps=nlps is None, load_spells=spells is None)
@@ -195,6 +200,15 @@ class ProfanityFilter:
         nlp = self._get_nlp(language)
         [language] = [language for language, nlp_ in self.nlps.items() if nlp_ == nlp]
         return SpacyProfanityFilterComponent(profanity_filter=self, nlp=nlp, language=language)
+
+    @property
+    def analyses(self) -> AnalysesTypes:
+        return self._analyses
+
+    @analyses.setter
+    def analyses(self, value: Collection[AnalysisType]) -> None:
+        self._analyses = AVAILABLE_ANALYSES.intersection(value)
+        self.clear_config_cache()
 
     @property
     def censor_char(self) -> str:
@@ -232,15 +246,6 @@ class ProfanityFilter:
                      for language, custom_censor_dictionary in value.items()}
         self._custom_censor_dictionaries = defaultdict(lambda: OrderedSet(), **value)
         self.clear_cache()
-
-    @property
-    def deep_analysis(self) -> bool:
-        return DEEP_ANALYSIS_AVAILABLE and self._deep_analysis
-
-    @deep_analysis.setter
-    def deep_analysis(self, value: bool) -> None:
-        self._deep_analysis = value
-        self.clear_config_cache()
 
     @property
     def extra_profane_word_dictionaries(self) -> ProfaneWordDictionaries:
@@ -287,7 +292,7 @@ class ProfanityFilter:
 
     @morphs.setter
     def morphs(self, value: Morphs) -> None:
-        if MORPHOLOGICAL_ANALYSIS_AVAILABLE:
+        if AnalysisType.MORPHOLOGICAL in self.analyses:
             self.clear_cache()
             if value is not None:
                 self._morphs = value
@@ -296,6 +301,8 @@ class ProfanityFilter:
                 for language in self.languages:
                     with suppress(ValueError):
                         self._morphs[language] = MorphAnalyzer(lang=language)
+                if not self._morphs:
+                    self.analyses -= {AnalysisType.MORPHOLOGICAL}
 
     @property
     def nlps(self) -> Nlps:
@@ -327,7 +334,7 @@ class ProfanityFilter:
         for language in self.languages.intersection(list(self.extra_profane_word_dictionaries.keys())):
             result[language] |= self.extra_profane_word_dictionaries[language]
 
-        if self.deep_analysis:
+        if AnalysisType.DEEP in self.analyses:
             # noinspection PyCallingNonCallable
             self._trie = {language: Trie(words=result[language], alphabet=self._alphabet)
                           for language in self.languages}
@@ -342,19 +349,18 @@ class ProfanityFilter:
 
     @spells.setter
     def spells(self, value: Spells) -> None:
-        global DEEP_ANALYSIS_AVAILABLE
         self.clear_cache()
-        if self.deep_analysis:
+        if AnalysisType.DEEP in self.analyses:
             if value is not None:
                 self._spells = value
             else:
                 self._spells = {}
-                DEEP_ANALYSIS_AVAILABLE = False
                 for language in self._languages:
                     with suppress(HunSpellError):
                         self._spells[language] = HunSpell(self._DATA_DIR / f'{language}.dic',
                                                           self._DATA_DIR / f'{language}.aff')
-                        DEEP_ANALYSIS_AVAILABLE = True
+                if not self._spells:
+                    self.analyses -= {AnalysisType.DEEP}
 
     def clear_cache(self) -> None:
         if self._cache_clearing_disabled:
@@ -494,7 +500,7 @@ class ProfanityFilter:
 
     def _get_spells(self, language: Language) -> 'OrderedSet[HunSpell]':
         result = OrderedSet([DummyHunSpell()])
-        if not self.deep_analysis:
+        if AnalysisType.DEEP not in self.analyses:
             return result
         if language is None:
             return OrderedSet(self.spells.values())
@@ -516,7 +522,7 @@ class ProfanityFilter:
 
     def _normal_forms(self, language: Language, word: str) -> 'OrderedSet[str]':
         morph = DummyMorphAnalyzer
-        if MORPHOLOGICAL_ANALYSIS_AVAILABLE:
+        if AnalysisType.MORPHOLOGICAL in self.analyses:
             # noinspection PyTypeChecker
             languages = OrderedSet([language]) | self.languages
             for language in languages:
@@ -549,7 +555,7 @@ class ProfanityFilter:
             word = word.text
         if language is None:
             language = self.languages[0]
-        if self.deep_analysis and self._is_dictionary_word(language=language, word=word):
+        if AnalysisType.DEEP in self.analyses and self._is_dictionary_word(language=language, word=word):
             return word
         else:
             return ''.join(regex.findall(r'\p{letter}', word))
@@ -577,18 +583,20 @@ class ProfanityFilter:
 
     @cached_property
     def _config(self):
-        return Config(censor_char=self.censor_char,
-                      censor_whole_words=self.censor_whole_words,
-                      deep_analysis=self.deep_analysis,
-                      languages=tuple(self.languages),
-                      max_relative_distance=self.max_relative_distance)
+        return Config(
+            analyses=self.analyses,
+            censor_char=self.censor_char,
+            censor_whole_words=self.censor_whole_words,
+            languages=tuple(self.languages),
+            max_relative_distance=self.max_relative_distance
+        )
 
     def _censor_word_part(self, language: Language, word: spacy.tokens.Token) -> Tuple[Word, bool]:
         """
         :return: Tuple of censored word and flag of no profanity inside
         """
         lemmas = self._lemmas(word=word, language=language)
-        if self.deep_analysis:
+        if AnalysisType.DEEP in self.analyses:
             lemmas_only_letters = OrderedSet([
                 self._keep_only_letters_or_dictionary_word(language=language, word=lemma) for lemma in lemmas])
             if lemmas_only_letters != lemmas:
@@ -610,7 +618,7 @@ class ProfanityFilter:
                 censored_word = Word(uncensored=word.text, censored=censored, original_profane_word=lemma)
                 self._censored_words[config][word.text] = censored_word
                 return censored_word, False
-        if self.deep_analysis:
+        if AnalysisType.DEEP in self.analyses:
             for lemma in lemmas:
                 if self._is_dictionary_word(language=language, word=lemma):
                     return Word(uncensored=word.text, censored=word.text), True
@@ -670,13 +678,13 @@ class ProfanityFilter:
                         )
                     # Stop after first iteration (with word part equal word) when deep analysis is disabled
                     # Also stop if word was partly censored
-                    if not self.deep_analysis or (censored_word != censored_word_prev):
+                    if AnalysisType.DEEP not in self.analyses or (censored_word != censored_word_prev):
                         break
                     censored_part, start, finish = substrings.send((no_profanity_start, no_profanity_finish))
                 except StopIteration:
                     break
         if censored_word.censored == word.text:
-            if self.deep_analysis and not self._is_dictionary_word(language=language, word=word.text):
+            if AnalysisType.DEEP in self.analyses and not self._is_dictionary_word(language=language, word=word.text):
                 self._words_with_no_profanity_inside[self._config].add(word.text)
                 return Word(uncensored=word.text, censored=word.text)
         else:
@@ -686,13 +694,13 @@ class ProfanityFilter:
     def _detect_languages(self, text: str) -> Languages:
         fallback_language = self.languages[0]
         fallback_result = OrderedSet([fallback_language])
-        if not MULTILINGUAL_ANALYSIS_AVAILABLE:
-            result = fallback_result
-        else:
+        if AnalysisType.MULTILINGUAL in self.analyses:
             polyglot_output = polyglot.detect.Detector(text, quiet=True)
             result = OrderedSet([language.code for language in polyglot_output.languages if language.code != 'un'])
             if not result:
                 result = fallback_result
+        else:
+            result = fallback_result
         result = result.intersection(self.languages)
         return result
 

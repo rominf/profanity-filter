@@ -260,22 +260,17 @@ $ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/ma
 ```
 
 ## Troubleshooting
-You can always check will deep, morphological, and multilingual analyses work by inspecting the value of corresponding
-variables. If everything is set up correctly you will see the following:
+You can always check will deep, morphological, and multilingual analyses work by inspecting the value of module
+variable `AVAILABLE_ANALYSES`. If you've followed all steps and installed support for all analyses you will see the
+following:
 ```python
-from profanity_filter import DEEP_ANALYSIS_AVAILABLE, MORPHOLOGICAL_ANALYSIS_AVAILABLE, MULTILINGUAL_ANALYSIS_AVAILABLE
+from profanity_filter import AVAILABLE_ANALYSES
 
-print(DEEP_ANALYSIS_AVAILABLE)
-# True
-
-print(MORPHOLOGICAL_ANALYSIS_AVAILABLE)
-# True
-
-print(MULTILINGUAL_ANALYSIS_AVAILABLE)
-# True
+print(', '.join(sorted(analysis.value for analysis in AVAILABLE_ANALYSES)))
+# deep, morphological, multilingual
 ```
 
-If some of variables are not `True`, you can import dependencies yourself to see the import exceptions:
+If something is not right, you can import dependencies yourself to see the import exceptions:
 ```python
 from profanity_filter.analysis.deep import *
 from profanity_filter.analysis.morphological import *

@@ -4,8 +4,8 @@ import pytest
 import spacy.language
 from ordered_set import OrderedSet
 
-from profanity_filter.profanity_filter import ProfanityFilter, MULTILINGUAL_ANALYSIS_AVAILABLE
-from profanity_filter.types_ import ProfaneWordDictionaries
+from profanity_filter.profanity_filter import ProfanityFilter
+from profanity_filter.types_ import ProfaneWordDictionaries, AnalysisType
 
 
 def create_profane_word_dictionaries(**kwargs) -> ProfaneWordDictionaries:
@@ -23,8 +23,8 @@ def pf() -> ProfanityFilter:
 
 
 @pytest.fixture
-def pf_with_deep_analysis_false(pf) -> ProfanityFilter:
-    pf.deep_analysis = False
+def pf_without_deep_analysis(pf) -> ProfanityFilter:
+    pf.analyses -= {AnalysisType.DEEP}
     return pf
 
 
@@ -50,21 +50,21 @@ def nlp() -> spacy.language.Language:
 @pytest.fixture(autouse=True)
 def skip_if_deep_analysis_is_disabled(request, pf):
     if request.node.get_marker('skip_if_deep_analysis_is_disabled'):
-        if not pf.deep_analysis:
+        if AnalysisType.DEEP not in pf.analyses:
             pytest.skip("Couldn't initialize deep analysis")
 
 
 @pytest.fixture(autouse=True)
 def skip_if_deep_analysis_is_disabled_ru_en(request, pf_ru_en):
     if request.node.get_marker('skip_if_deep_analysis_is_disabled'):
-        if not pf_ru_en.deep_analysis:
+        if AnalysisType.DEEP not in pf_ru_en.analyses:
             pytest.skip("Couldn't initialize deep analysis")
 
 
 @pytest.fixture(autouse=True)
-def skip_if_multilingual_analysis_is_not_available(request):
+def skip_if_multilingual_analysis_is_not_available(request, pf_ru_en):
     if request.node.get_marker('skip_if_multilingual_analysis_is_not_available'):
-        if not MULTILINGUAL_ANALYSIS_AVAILABLE:
+        if AnalysisType.MULTILINGUAL not in pf_ru_en.analyses:
             pytest.skip("Couldn't initialize multilingual analysis")
 
 

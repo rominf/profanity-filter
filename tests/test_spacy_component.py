@@ -1,10 +1,9 @@
 from itertools import chain
 
-from profanity_filter import Config
-from tests.conftest import TEST_STATEMENT, with_config
+from tests.conftest import TEST_STATEMENT, with_config, TestConfig
 
 
-@with_config(Config(analyses=frozenset()))
+@with_config(TestConfig())
 def test_spacy_component(nlp):
     doc = nlp(TEST_STATEMENT)
 

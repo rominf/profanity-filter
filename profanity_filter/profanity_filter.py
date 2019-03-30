@@ -75,24 +75,23 @@ with suppress(ImportError):
     from profanity_filter.analysis.multilingual import *
     _available_analyses_list.append(AnalysisType.MULTILINGUAL)
 
-
 AVAILABLE_ANALYSES: AnalysesTypes = frozenset(_available_analyses_list)
 
 
-default_config = Config()
+DEFAULT_CONFIG = Config()
 __version__ = poetry_version.extract(source_file=__file__)
 
 
 class ProfanityFilter:
     def __init__(self,
-                 languages: LanguagesAcceptable = default_config.languages,
+                 languages: LanguagesAcceptable = DEFAULT_CONFIG.languages,
                  *,
-                 analyses: AnalysesTypes = default_config.analyses,
-                 censor_char: str = default_config.censor_char,
-                 censor_whole_words: bool = default_config.censor_whole_words,
+                 analyses: AnalysesTypes = DEFAULT_CONFIG.analyses,
+                 censor_char: str = DEFAULT_CONFIG.censor_char,
+                 censor_whole_words: bool = DEFAULT_CONFIG.censor_whole_words,
                  custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
                  extra_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
-                 max_relative_distance: float = default_config.max_relative_distance,
+                 max_relative_distance: float = DEFAULT_CONFIG.max_relative_distance,
                  morphs: Optional[Morphs] = None,
                  nlps: Optional[Nlps] = None,
                  spells: Optional[Spells] = None,
@@ -152,14 +151,14 @@ class ProfanityFilter:
 
     # noinspection PyAttributeOutsideInit
     def config(self,
-               languages: LanguagesAcceptable = default_config.languages,
+               languages: LanguagesAcceptable = DEFAULT_CONFIG.languages,
                *,
-               analyses: AnalysesTypes = default_config.analyses,
-               censor_char: str = default_config.censor_char,
-               censor_whole_words: bool = default_config.censor_whole_words,
+               analyses: AnalysesTypes = DEFAULT_CONFIG.analyses,
+               censor_char: str = DEFAULT_CONFIG.censor_char,
+               censor_whole_words: bool = DEFAULT_CONFIG.censor_whole_words,
                custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
                extra_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
-               max_relative_distance: float = default_config.max_relative_distance,
+               max_relative_distance: float = DEFAULT_CONFIG.max_relative_distance,
                morphs: Optional[Morphs] = None,
                nlps: Optional[Nlps] = None,
                spells: Optional[Spells] = None,

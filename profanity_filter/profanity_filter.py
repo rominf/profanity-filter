@@ -119,12 +119,12 @@ class ProfanityFilter:
         self._alphabet = set()
         self._trie = {}
 
-        # Dict from profane word to censored word that is generated after censoring
-        self._censored_words: Dict[Config, Words] = {}
+        # Cache of censored words
+        self._censored_words: Words = {}
 
-        # Set of words with no profanity inside that is generated after censoring
+        # Cache of words with no profanity inside that is generated after censoring
         # (include words that are not in the dictionary)
-        self._words_with_no_profanity_inside: Dict[Config, Set[str]] = None
+        self._words_with_no_profanity_inside: Set[str] = {}
 
         # What to be censored - should not be modified by user
         self._censor_dictionaries: ProfaneWordDictionaries = None
@@ -207,7 +207,7 @@ class ProfanityFilter:
     @analyses.setter
     def analyses(self, value: Collection[AnalysisType]) -> None:
         self._analyses = AVAILABLE_ANALYSES.intersection(value)
-        self.clear_config_cache()
+        self.clear_cache()
 
     @property
     def censor_char(self) -> str:
@@ -220,7 +220,7 @@ class ProfanityFilter:
         if len(value) != 1:
             raise ValueError("Censor char must be str of length 1")
         self._censor_char = value
-        self.clear_config_cache()
+        self.clear_cache()
 
     @property
     def censor_whole_words(self) -> bool:
@@ -229,7 +229,7 @@ class ProfanityFilter:
     @censor_whole_words.setter
     def censor_whole_words(self, value: bool) -> None:
         self._censor_whole_words = value
-        self.clear_config_cache()
+        self.clear_cache()
 
     @property
     def custom_profane_word_dictionaries(self) -> ProfaneWordDictionaries:
@@ -283,7 +283,7 @@ class ProfanityFilter:
     @max_relative_distance.setter
     def max_relative_distance(self, value: float) -> None:
         self._max_relative_distance = value
-        self.clear_config_cache()
+        self.clear_cache()
 
     @property
     def morphs(self) -> Morphs:
@@ -348,8 +348,8 @@ class ProfanityFilter:
 
     @spells.setter
     def spells(self, value: Optional[Spells]) -> None:
-        self.clear_cache()
         if AnalysisType.DEEP in self.analyses:
+            self.clear_cache()
             if value is not None:
                 self._spells = value
             else:
@@ -365,27 +365,18 @@ class ProfanityFilter:
         if self._cache_clearing_disabled:
             return
 
-        with suppress(KeyError):
-            del self.__dict__['profane_word_dictionaries']
-
         self._update_profane_word_dictionary_files()
         self._update_profane_word_dictionaries()
-        self._censored_words = defaultdict(lambda: {})
-        self._words_with_no_profanity_inside = defaultdict(lambda: set())
+        self._censored_words = {}
+        self._words_with_no_profanity_inside = set()
 
-    def clear_config_cache(self) -> None:
-        if self._cache_clearing_disabled:
-            return
-
-        with suppress(KeyError):
-            del self.__dict__['_config']
-
-    def clear_languages_str_cache(self) -> None:
+    def _update_languages_str(self) -> None:
         if self._cache_clearing_disabled:
             return
 
         with suppress(KeyError):
             del self.__dict__['languages_str']
+        _ = self.languages_str
 
     # noinspection PyAttributeOutsideInit
     def restore_profane_word_dictionaries(self) -> None:
@@ -402,16 +393,14 @@ class ProfanityFilter:
     def _set_languages(self, value: LanguagesAcceptable, load_morphs: bool = True, load_nlps: bool = True,
                        load_spells: bool = True) -> None:
         self._languages = OrderedSet(value)
-        self.clear_languages_str_cache()
-        _ = self.languages_str
-        self.clear_config_cache()
-        self.clear_cache()
+        self._update_languages_str()
         if load_morphs:
             self.morphs = None
         if load_nlps:
             self.nlps = None
         if load_spells:
             self.spells = None
+        self.clear_cache()
 
     def _update_profane_word_dictionary_files(self):
         # Paths to profane word dictionaries
@@ -424,6 +413,11 @@ class ProfanityFilter:
             raise ProfanityFilterError(f"Couldn't load profane words for any of languages: {self.languages_str}")
 
     def _update_profane_word_dictionaries(self) -> None:
+        if self._cache_clearing_disabled:
+            return
+
+        with suppress(KeyError):
+            del self.__dict__['profane_word_dictionaries']
         _ = self.profane_word_dictionaries
 
     def _load_profane_word_dictionaries(self) -> None:
@@ -562,7 +556,7 @@ class ProfanityFilter:
     def _has_no_profanity(self, words: Collection[str]) -> bool:
         return any(word in word_with_no_profanity_inside
                    for word in words
-                   for word_with_no_profanity_inside in self._words_with_no_profanity_inside[self._config])
+                   for word_with_no_profanity_inside in self._words_with_no_profanity_inside)
 
     def _get_trie(self, language: Language) -> Trie:
         result = None
@@ -580,16 +574,6 @@ class ProfanityFilter:
                                      [self.profane_word_dictionaries[language]])
         return any(word in profane_word_dictionary for profane_word_dictionary in profane_word_dictionaries)
 
-    @cached_property
-    def _config(self):
-        return Config(
-            analyses=self.analyses,
-            censor_char=self.censor_char,
-            censor_whole_words=self.censor_whole_words,
-            languages=tuple(self.languages),
-            max_relative_distance=self.max_relative_distance
-        )
-
     def _censor_word_part(self, language: Language, word: spacy.tokens.Token) -> Tuple[Word, bool]:
         """
         :return: Tuple of censored word and flag of no profanity inside
@@ -605,9 +589,8 @@ class ProfanityFilter:
         # noinspection PyTypeChecker
         if self._has_no_profanity(lemmas):
             return Word(uncensored=word.text, censored=word.text), True
-        config = self._config
-        if word.text in self._censored_words[config]:
-            return self._censored_words[config][word.text], False
+        if word.text in self._censored_words:
+            return self._censored_words[word.text], False
         for lemma in lemmas:
             if self._is_profane_word(language=language, word=lemma):
                 if self.censor_whole_words:
@@ -615,7 +598,7 @@ class ProfanityFilter:
                 else:
                     censored = self._generate_partly_censored_word(word=word, profane_word=lemma)
                 censored_word = Word(uncensored=word.text, censored=censored, original_profane_word=lemma)
-                self._censored_words[config][word.text] = censored_word
+                self._censored_words[word.text] = censored_word
                 return censored_word, False
         if AnalysisType.DEEP in self.analyses:
             for lemma in lemmas:
@@ -634,7 +617,7 @@ class ProfanityFilter:
                     else:
                         censored = self._generate_partly_censored_word(word=word, profane_word=bad_word)
                     censored_word = Word(uncensored=word.text, censored=censored, original_profane_word=bad_word)
-                    self._censored_words[config][word.text] = censored_word
+                    self._censored_words[word.text] = censored_word
                     return censored_word, False
         return Word(uncensored=word.text, censored=word.text), False
 
@@ -684,10 +667,10 @@ class ProfanityFilter:
                     break
         if censored_word.censored == word.text:
             if AnalysisType.DEEP in self.analyses and not self._is_dictionary_word(language=language, word=word.text):
-                self._words_with_no_profanity_inside[self._config].add(word.text)
+                self._words_with_no_profanity_inside.add(word.text)
                 return Word(uncensored=word.text, censored=word.text)
         else:
-            self._censored_words[self._config][word.text] = censored_word
+            self._censored_words[word.text] = censored_word
         return censored_word
 
     def _detect_languages(self, text: str) -> Languages:

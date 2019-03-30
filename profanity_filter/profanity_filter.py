@@ -5,7 +5,7 @@ from copy import deepcopy
 from itertools import chain
 from math import floor
 from pathlib import Path
-from typing import Dict, Union, List, Tuple, Set, Collection, ContextManager
+from typing import Dict, Union, List, Tuple, Set, Collection, ContextManager, Optional
 
 import poetry_version
 import spacy
@@ -93,9 +93,9 @@ class ProfanityFilter:
                  custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
                  extra_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
                  max_relative_distance: float = default_config.max_relative_distance,
-                 morphs: Morphs = None,
-                 nlps: Nlps = None,
-                 spells: Spells = None,
+                 morphs: Optional[Morphs] = None,
+                 nlps: Optional[Nlps] = None,
+                 spells: Optional[Spells] = None,
                  ):
         # Path to data dir
         self._BASE_DIR = Path(__file__).absolute().parent
@@ -160,9 +160,9 @@ class ProfanityFilter:
                custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
                extra_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
                max_relative_distance: float = default_config.max_relative_distance,
-               morphs: Morphs = None,
-               nlps: Nlps = None,
-               spells: Spells = None,
+               morphs: Optional[Morphs] = None,
+               nlps: Optional[Nlps] = None,
+               spells: Optional[Spells] = None,
                ):
         self.analyses = analyses
         self.censor_char = censor_char
@@ -291,7 +291,7 @@ class ProfanityFilter:
         return self._morphs
 
     @morphs.setter
-    def morphs(self, value: Morphs) -> None:
+    def morphs(self, value: Optional[Morphs]) -> None:
         if AnalysisType.MORPHOLOGICAL in self.analyses:
             self.clear_cache()
             if value is not None:
@@ -309,7 +309,7 @@ class ProfanityFilter:
         return self._nlps
 
     @nlps.setter
-    def nlps(self, value: Nlps) -> None:
+    def nlps(self, value: Optional[Nlps]) -> None:
         self.clear_cache()
         if value is not None:
             self._nlps = value
@@ -348,7 +348,7 @@ class ProfanityFilter:
         return self._spells
 
     @spells.setter
-    def spells(self, value: Spells) -> None:
+    def spells(self, value: Optional[Spells]) -> None:
         self.clear_cache()
         if AnalysisType.DEEP in self.analyses:
             if value is not None:

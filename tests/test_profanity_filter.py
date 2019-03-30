@@ -157,4 +157,3 @@ def test_russian_deep_analysis(pf_ru_en):
 @pytest.mark.skip_if_multilingual_analysis_is_not_available
 def test_multilingual(pf_ru_en):
     assert pf_ru_en.censor("Да бля, это просто shit какой-то!") == "Да ***, это просто **** какой-то!"
-

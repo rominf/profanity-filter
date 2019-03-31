@@ -369,7 +369,7 @@ class ProfanityFilter:
         self._update_profane_word_dictionary_files()
         self._update_profane_word_dictionaries()
         self._censored_words = {}
-        self._words_with_no_profanity_inside = set()
+        self._clear_words_with_no_profanity_inside()
 
     def _update_languages_str(self) -> None:
         if self._cache_clearing_disabled:
@@ -390,6 +390,9 @@ class ProfanityFilter:
         self._cache_clearing_disabled = True
         yield
         self._cache_clearing_disabled = False
+
+    def _clear_words_with_no_profanity_inside(self) -> None:
+        self._words_with_no_profanity_inside = set()
 
     def _set_languages(self, value: LanguagesAcceptable, load_morphs: bool = True, load_nlps: bool = True,
                        load_spells: bool = True) -> None:
@@ -554,10 +557,13 @@ class ProfanityFilter:
         else:
             return ''.join(regex.findall(r'\p{letter}', word))
 
+    def _get_words_with_no_profanity_inside(self) -> Set[str]:
+        return self._words_with_no_profanity_inside
+
     def _has_no_profanity(self, words: Collection[str]) -> bool:
         return any(word in word_with_no_profanity_inside
                    for word in words
-                   for word_with_no_profanity_inside in self._words_with_no_profanity_inside)
+                   for word_with_no_profanity_inside in self._get_words_with_no_profanity_inside())
 
     def _get_trie(self, language: Language) -> Trie:
         result = None
@@ -622,6 +628,9 @@ class ProfanityFilter:
                     return censored_word, False
         return Word(uncensored=word.text, censored=word.text), False
 
+    def _save_word_with_no_profanity_inside(self, word: spacy.tokens.Token) -> None:
+        self._words_with_no_profanity_inside.add(word.text)
+
     def _censor_word(self, language: Language, word: spacy.tokens.Token) -> Word:
         """Returns censored word"""
         censored_word_prev = None
@@ -668,7 +677,7 @@ class ProfanityFilter:
                     break
         if censored_word.censored == word.text:
             if AnalysisType.DEEP in self.analyses and not self._is_dictionary_word(language=language, word=word.text):
-                self._words_with_no_profanity_inside.add(word.text)
+                self._save_word_with_no_profanity_inside(word)
         else:
             self._censored_words[word.text] = censored_word
         return censored_word

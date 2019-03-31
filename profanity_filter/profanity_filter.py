@@ -124,7 +124,7 @@ class ProfanityFilter:
 
         # Cache of words with no profanity inside that is generated after censoring
         # (include words that are not in the dictionary)
-        self._words_with_no_profanity_inside: Set[str] = {}
+        self._words_with_no_profanity_inside: Set[str] = set()
 
         # What to be censored - should not be modified by user
         self._censor_dictionaries: ProfaneWordDictionaries = None
@@ -668,7 +668,6 @@ class ProfanityFilter:
         if censored_word.censored == word.text:
             if AnalysisType.DEEP in self.analyses and not self._is_dictionary_word(language=language, word=word.text):
                 self._words_with_no_profanity_inside.add(word.text)
-                return Word(uncensored=word.text, censored=word.text)
         else:
             self._censored_words[word.text] = censored_word
         return censored_word

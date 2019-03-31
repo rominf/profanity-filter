@@ -1,7 +1,20 @@
 from ordered_set import OrderedSet
 
+from profanity_filter.profanity_filter import ProfanityFilter, DEFAULT_CONFIG
 from profanity_filter.types_ import Word, AnalysisType
 from tests.conftest import create_profane_word_dictionaries, TEST_STATEMENT, CLEAN_STATEMENT, with_config, Config
+
+
+def test_from_config():
+    pf_constructor = ProfanityFilter()
+    pf_from_config = ProfanityFilter.from_config(DEFAULT_CONFIG)
+    assert pf_constructor.analyses == pf_from_config.analyses
+    assert pf_constructor.cache_redis_connection_url == pf_from_config.cache_redis_connection_url
+    assert pf_constructor.censor_char == pf_from_config.censor_char
+    assert pf_constructor.custom_profane_word_dictionaries == pf_from_config.custom_profane_word_dictionaries
+    assert pf_constructor.extra_profane_word_dictionaries == pf_from_config.extra_profane_word_dictionaries
+    assert pf_constructor.languages == pf_from_config.languages
+    assert pf_constructor.max_relative_distance == pf_from_config.max_relative_distance
 
 
 @with_config(Config(analyses=frozenset([AnalysisType.DEEP])))

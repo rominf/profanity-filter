@@ -182,6 +182,17 @@ class ProfanityFilter:
         if spells is not None:
             self.spells = spells
 
+    @classmethod
+    def from_config(cls, config: Config) -> 'ProfanityFilter':
+        return cls(
+            languages=config.languages,
+            analyses=frozenset(config.analyses),
+            cache_redis_connection_url=config.cache_redis_connection_url,
+            censor_char=config.censor_char,
+            censor_whole_words=config.censor_whole_words,
+            max_relative_distance=config.max_relative_distance,
+        )
+
     def censor(self, text: str) -> str:
         """Returns text with any profane words censored"""
         return self._censor(text=text, return_bool=False)

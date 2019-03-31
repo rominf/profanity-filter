@@ -5,6 +5,7 @@ from typing import Optional, Dict, Collection, Generator, Tuple, List, FrozenSet
 import spacy.language
 from cached_property import cached_property
 from hunspell_serializable import HunSpell
+from pydantic import BaseModel
 from pymorphy2 import MorphAnalyzer
 
 
@@ -49,10 +50,9 @@ TextSplittedByLanguage = List[Tuple[Language, str]]
 
 
 # noinspection PyTypeChecker
-@dataclass(frozen=True)
-class Config:
-    analyses: AnalysesTypes = frozenset(AnalysisType)
+class Config(BaseModel):
+    analyses: List[AnalysisType] = list(AnalysisType)
     censor_char: str = '*'
     censor_whole_words: bool = True
-    languages: Tuple[Language, ...] = ('en', )
+    languages: List[Language] = ['en']
     max_relative_distance: float = 0.34

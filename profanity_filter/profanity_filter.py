@@ -86,9 +86,9 @@ __version__ = poetry_version.extract(source_file=__file__)
 
 class ProfanityFilter:
     def __init__(self,
-                 languages: LanguagesAcceptable = DEFAULT_CONFIG.languages,
+                 languages: LanguagesAcceptable = tuple(DEFAULT_CONFIG.languages),
                  *,
-                 analyses: AnalysesTypes = DEFAULT_CONFIG.analyses,
+                 analyses: AnalysesTypes = frozenset(DEFAULT_CONFIG.analyses),
                  cache_redis_connection_url: Optional[str] = None,
                  censor_char: str = DEFAULT_CONFIG.censor_char,
                  censor_whole_words: bool = DEFAULT_CONFIG.censor_whole_words,
@@ -154,9 +154,9 @@ class ProfanityFilter:
         self.clear_cache()
 
     def config(self,
-               languages: LanguagesAcceptable = DEFAULT_CONFIG.languages,
+               languages: LanguagesAcceptable = tuple(DEFAULT_CONFIG.languages),
                *,
-               analyses: AnalysesTypes = DEFAULT_CONFIG.analyses,
+               analyses: AnalysesTypes = frozenset(DEFAULT_CONFIG.analyses),
                cache_redis_connection_url: Optional[str] = None,
                censor_char: str = DEFAULT_CONFIG.censor_char,
                censor_whole_words: bool = DEFAULT_CONFIG.censor_whole_words,

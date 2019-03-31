@@ -150,7 +150,6 @@ class ProfanityFilter:
 
         self.clear_cache()
 
-    # noinspection PyAttributeOutsideInit
     def config(self,
                languages: LanguagesAcceptable = DEFAULT_CONFIG.languages,
                *,
@@ -267,7 +266,6 @@ class ProfanityFilter:
         """Languages"""
         return self._languages
 
-    # noinspection PyAttributeOutsideInit
     @languages.setter
     def languages(self, value: LanguagesAcceptable) -> None:
         self._set_languages(value)
@@ -335,7 +333,6 @@ class ProfanityFilter:
             result[language] |= self.extra_profane_word_dictionaries[language]
 
         if AnalysisType.DEEP in self.analyses:
-            # noinspection PyCallingNonCallable
             self._trie = {language: Trie(words=result[language], alphabet=self._alphabet)
                           for language in self.languages}
             for length in range(self._MAX_MAX_DISTANCE + 1):
@@ -371,7 +368,6 @@ class ProfanityFilter:
         self._censored_words = {}
         self._clear_words_with_no_profanity_inside()
 
-    # noinspection PyAttributeOutsideInit
     def restore_profane_word_dictionaries(self) -> None:
         """ Clears all custom censor lists """
         self.custom_profane_word_dictionaries = None
@@ -593,7 +589,6 @@ class ProfanityFilter:
                 lemmas_only_letters = [
                     *chain(*(self._lemmas(word=lemma, language=language) for lemma in lemmas_only_letters))]
                 lemmas.update(lemmas_only_letters)
-        # noinspection PyTypeChecker
         if self._has_no_profanity(lemmas):
             return Word(uncensored=word.text, censored=word.text), True
         if word.text in self._censored_words:

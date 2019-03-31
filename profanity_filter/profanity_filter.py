@@ -15,6 +15,7 @@ import spacy.tokens
 from cached_property import cached_property
 from more_itertools import substrings_indexes
 from ordered_set import OrderedSet
+from redis import Redis
 
 from profanity_filter import spacy_utlis
 from profanity_filter.spacy_component import SpacyProfanityFilterComponent
@@ -87,6 +88,7 @@ class ProfanityFilter:
                  languages: LanguagesAcceptable = DEFAULT_CONFIG.languages,
                  *,
                  analyses: AnalysesTypes = DEFAULT_CONFIG.analyses,
+                 cache_redis_connection_url: Optional[str] = None,
                  censor_char: str = DEFAULT_CONFIG.censor_char,
                  censor_whole_words: bool = DEFAULT_CONFIG.censor_whole_words,
                  custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
@@ -105,6 +107,8 @@ class ProfanityFilter:
         # Set dummy values to satisfy the linter (they will be overwritten in `config`)
         self._analyses: AnalysesTypes = frozenset()
         self._cache_clearing_disabled: bool = False
+        self._cache_redis: Optional[Redis] = None
+        self._cache_redis_connection_url: Optional[str] = None
         self._censor_char: str = ''
         self._censor_whole_words: bool = False
         self._custom_censor_dictionaries: ProfaneWordDictionaries = {}
@@ -138,6 +142,7 @@ class ProfanityFilter:
             self.config(
                 languages=languages,
                 analyses=analyses,
+                cache_redis_connection_url=cache_redis_connection_url,
                 censor_char=censor_char,
                 censor_whole_words=censor_whole_words,
                 custom_censor_dictionaries=custom_censor_dictionaries,
@@ -154,6 +159,7 @@ class ProfanityFilter:
                languages: LanguagesAcceptable = DEFAULT_CONFIG.languages,
                *,
                analyses: AnalysesTypes = DEFAULT_CONFIG.analyses,
+               cache_redis_connection_url: Optional[str] = None,
                censor_char: str = DEFAULT_CONFIG.censor_char,
                censor_whole_words: bool = DEFAULT_CONFIG.censor_whole_words,
                custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
@@ -164,6 +170,7 @@ class ProfanityFilter:
                spells: Optional[Spells] = None,
                ):
         self.analyses = analyses
+        self.cache_redis_connection_url = cache_redis_connection_url
         self.censor_char = censor_char
         self.censor_whole_words = censor_whole_words
         self.custom_profane_word_dictionaries = custom_censor_dictionaries
@@ -208,6 +215,16 @@ class ProfanityFilter:
     def analyses(self, value: Collection[AnalysisType]) -> None:
         self._analyses = AVAILABLE_ANALYSES.intersection(value)
         self.clear_cache()
+
+    @property
+    def cache_redis_connection_url(self) -> Optional[str]:
+        return self._cache_redis_connection_url
+
+    @cache_redis_connection_url.setter
+    def cache_redis_connection_url(self, value: Optional[str]) -> None:
+        self._cache_redis_connection_url = value
+        if value is not None:
+            self._cache_redis = Redis.from_url(value)
 
     @property
     def censor_char(self) -> str:
@@ -381,6 +398,8 @@ class ProfanityFilter:
 
     def _clear_words_with_no_profanity_inside(self) -> None:
         self._words_with_no_profanity_inside = set()
+        if self._cache_redis is not None:
+            self._cache_redis.delete('_words_with_no_profanity_inside')
 
     def _update_languages_str(self) -> None:
         if self._cache_clearing_disabled:
@@ -554,7 +573,10 @@ class ProfanityFilter:
             return ''.join(regex.findall(r'\p{letter}', word))
 
     def _get_words_with_no_profanity_inside(self) -> Set[str]:
-        return self._words_with_no_profanity_inside
+        if self._cache_redis is None:
+            return self._words_with_no_profanity_inside
+        else:
+            return {word.decode('utf8') for word in self._cache_redis.smembers('_words_with_no_profanity_inside')}
 
     def _has_no_profanity(self, words: Collection[str]) -> bool:
         return any(word in word_with_no_profanity_inside
@@ -624,7 +646,10 @@ class ProfanityFilter:
         return Word(uncensored=word.text, censored=word.text), False
 
     def _save_word_with_no_profanity_inside(self, word: spacy.tokens.Token) -> None:
-        self._words_with_no_profanity_inside.add(word.text)
+        if self._cache_redis is None:
+            self._words_with_no_profanity_inside.add(word.text)
+        else:
+            self._cache_redis.sadd('_words_with_no_profanity_inside', word.text)
 
     def _censor_word(self, language: Language, word: spacy.tokens.Token) -> Word:
         """Returns censored word"""

@@ -135,9 +135,6 @@ class ProfanityFilter:
         # What to be censored - should not be modified by user
         self._censor_dictionaries: ProfaneWordDictionaries = {}
 
-        with suppress(ValueError):
-            SpacyProfanityFilterComponent.register_extensions()
-
         with self._disabled_cache_clearing():
             # nlps argument is set to {} so that nlps are loaded after clear_cache which loads profane word dictionaries
             self.config(

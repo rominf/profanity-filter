@@ -1,3 +1,4 @@
+from contextlib import suppress
 from typing import Union, Optional, Generator, List
 
 import spacy.language
@@ -21,6 +22,7 @@ class SpacyProfanityFilterComponent:
 
     # noinspection PyProtectedMember
     def __call__(self, doc: Doc, language: Language = None, stop_on_first_profane_word: Optional[bool] = None) -> Doc:
+        self.register_extensions(exist_ok=True)
         if language is None:
             language = self._language
         if stop_on_first_profane_word is None:
@@ -39,13 +41,20 @@ class SpacyProfanityFilterComponent:
         return doc
 
     @staticmethod
-    def register_extensions() -> None:
-        Token.set_extension('censored', default=None)
-        Token.set_extension('is_profane', getter=SpacyProfanityFilterComponent.token_is_profane)
-        Token.set_extension('original_profane_word', default=None)
+    def register_extensions(exist_ok: bool = False) -> None:
+        def do() -> None:
+            Token.set_extension('censored', default=None)
+            Token.set_extension('is_profane', getter=SpacyProfanityFilterComponent.token_is_profane)
+            Token.set_extension('original_profane_word', default=None)
 
-        Span.set_extension('is_profane', getter=SpacyProfanityFilterComponent.tokens_are_profane)
-        Doc.set_extension('is_profane', getter=SpacyProfanityFilterComponent.tokens_are_profane)
+            Span.set_extension('is_profane', getter=SpacyProfanityFilterComponent.tokens_are_profane)
+            Doc.set_extension('is_profane', getter=SpacyProfanityFilterComponent.tokens_are_profane)
+
+        if exist_ok:
+            with suppress(ValueError):
+                do()
+        else:
+            do()
 
     @staticmethod
     def token_is_profane(token: Token) -> bool:

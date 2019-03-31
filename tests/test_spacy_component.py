@@ -1,9 +1,9 @@
 from itertools import chain
 
-from tests.conftest import TEST_STATEMENT, with_config, TestConfig
+from tests.conftest import TEST_STATEMENT, with_config, Config
 
 
-@with_config(TestConfig())
+@with_config(Config())
 def test_spacy_component(nlp):
     doc = nlp(TEST_STATEMENT)
 

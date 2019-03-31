@@ -13,7 +13,7 @@ from profanity_filter.types_ import Config, ProfaneWordDictionaries, AnalysesTyp
 
 
 @dataclass(frozen=True)
-class TestConfig(Config):
+class Config(Config):
     analyses: AnalysesTypes = frozenset()
     censor_whole_words: bool = True
     deep_copy: bool = False
@@ -32,7 +32,7 @@ def empty_profane_word_dictionaries() -> ProfaneWordDictionaries:
 
 @pytest.fixture
 def pf(request) -> ProfanityFilter:
-    config: TestConfig = request.param
+    config: Config = request.param
     result = ProfanityFilter(
         languages=config.languages,
         analyses=config.analyses,
@@ -55,7 +55,7 @@ def nlp(pf) -> spacy.language.Language:
     return nlp
 
 
-def with_config(config: TestConfig):
+def with_config(config: Config):
     def decorator(f):
         return pytest.mark.parametrize(
             'pf',

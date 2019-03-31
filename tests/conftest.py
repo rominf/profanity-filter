@@ -12,8 +12,8 @@ from profanity_filter.profanity_filter import ProfanityFilter
 from profanity_filter.types_ import Config, ProfaneWordDictionaries, AnalysesTypes, Language
 
 
-@dataclass(frozen=True)
-class Config(Config):
+@dataclass
+class Config:
     analyses: AnalysesTypes = frozenset()
     censor_whole_words: bool = True
     deep_copy: bool = False

@@ -2,6 +2,7 @@ import re
 from collections import defaultdict
 from contextlib import suppress, contextmanager
 from copy import deepcopy
+from dataclasses import asdict
 from itertools import chain
 from math import floor
 from pathlib import Path
@@ -382,8 +383,7 @@ class ProfanityFilter:
 
         self._update_profane_word_dictionary_files()
         self._update_profane_word_dictionaries()
-        self._clear_censored_words()
-        self._clear_words_with_no_profanity_inside()
+        self._clear_words_cache()
 
     def restore_profane_word_dictionaries(self) -> None:
         """ Clears all custom censor lists """
@@ -396,13 +396,11 @@ class ProfanityFilter:
         yield
         self._cache_clearing_disabled = False
 
-    def _clear_censored_words(self):
+    def _clear_words_cache(self):
         self._censored_words = {}
-
-    def _clear_words_with_no_profanity_inside(self) -> None:
         self._words_with_no_profanity_inside = set()
         if self._cache_redis is not None:
-            self._cache_redis.delete('_words_with_no_profanity_inside')
+            self._cache_redis.flushdb()
 
     def _update_languages_str(self) -> None:
         if self._cache_clearing_disabled:
@@ -603,10 +601,25 @@ class ProfanityFilter:
         return any(word in profane_word_dictionary for profane_word_dictionary in profane_word_dictionaries)
 
     def _get_censored_word(self, word: spacy.tokens.Token) -> Optional[Word]:
-        return self._censored_words.get(word.text)
+        if self._cache_redis is None:
+            return self._censored_words.get(word.text)
+        else:
+            d = self._cache_redis.hgetall(word.text)
+            if not d:
+                return None
+            uncensored, censored, original_profane_word = d[b'uncensored'], d[b'censored'], d[b'original_profane_word']
+            if not original_profane_word:
+                original_profane_word = None
+            return Word(uncensored=uncensored, censored=censored, original_profane_word=original_profane_word)
 
     def _save_censored_word(self, word: Word) -> None:
-        self._censored_words[word.uncensored] = word
+        if self._cache_redis is None:
+            self._censored_words[word.uncensored] = word
+        else:
+            d = asdict(word)
+            if not word.original_profane_word:
+                d['original_profane_word'] = ''
+            self._cache_redis.hmset(word.uncensored, d)
 
     def _censor_word_part(self, language: Language, word: spacy.tokens.Token) -> Tuple[Word, bool]:
         """

@@ -371,14 +371,6 @@ class ProfanityFilter:
         self._censored_words = {}
         self._clear_words_with_no_profanity_inside()
 
-    def _update_languages_str(self) -> None:
-        if self._cache_clearing_disabled:
-            return
-
-        with suppress(KeyError):
-            del self.__dict__['languages_str']
-        _ = self.languages_str
-
     # noinspection PyAttributeOutsideInit
     def restore_profane_word_dictionaries(self) -> None:
         """ Clears all custom censor lists """
@@ -393,6 +385,14 @@ class ProfanityFilter:
 
     def _clear_words_with_no_profanity_inside(self) -> None:
         self._words_with_no_profanity_inside = set()
+
+    def _update_languages_str(self) -> None:
+        if self._cache_clearing_disabled:
+            return
+
+        with suppress(KeyError):
+            del self.__dict__['languages_str']
+        _ = self.languages_str
 
     def _set_languages(self, value: LanguagesAcceptable, load_morphs: bool = True, load_nlps: bool = True,
                        load_spells: bool = True) -> None:

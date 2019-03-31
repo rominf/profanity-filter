@@ -101,19 +101,20 @@ class ProfanityFilter:
         self._DATA_DIR = self._BASE_DIR / 'data'
 
         self._MAX_MAX_DISTANCE = 3
+
+        # Set dummy values to satisfy the linter (they will be overwritten in `config`)
         self._analyses: AnalysesTypes = frozenset()
         self._cache_clearing_disabled: bool = False
-        self._censor_char: str = None
-        self._censor_whole_words: bool = None
-        self._custom_censor_dictionaries: ProfaneWordDictionaries = None
-        self._extra_censor_dictionaries: ProfaneWordDictionaries = None
+        self._censor_char: str = ''
+        self._censor_whole_words: bool = False
+        self._custom_censor_dictionaries: ProfaneWordDictionaries = {}
+        self._extra_censor_dictionaries: ProfaneWordDictionaries = {}
         self._languages: Languages = OrderedSet()
-        self._max_relative_distance: float = None
-        self._morphs: Morphs = None
-        self._nlps: Nlps = None
-        self._nlps_untouched: Nlps = None
-        self._profane_word_dictionary_files: Dict[Language, str] = None
-        self._spells: Spells = None
+        self._max_relative_distance: float = 0.0
+        self._morphs: Morphs = {}
+        self._nlps: Nlps = {}
+        self._profane_word_dictionary_files: Dict[Language, str] = {}
+        self._spells: Spells = {}
 
         # For Levenshtein automata
         self._alphabet = set()
@@ -127,7 +128,7 @@ class ProfanityFilter:
         self._words_with_no_profanity_inside: Set[str] = set()
 
         # What to be censored - should not be modified by user
-        self._censor_dictionaries: ProfaneWordDictionaries = None
+        self._censor_dictionaries: ProfaneWordDictionaries = {}
 
         with suppress(ValueError):
             SpacyProfanityFilterComponent.register_extensions()

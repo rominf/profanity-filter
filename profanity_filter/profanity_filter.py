@@ -17,6 +17,7 @@ from cached_property import cached_property
 from more_itertools import substrings_indexes
 from ordered_set import OrderedSet
 from redis import Redis
+from ruamel.yaml import YAML
 
 from profanity_filter import spacy_utlis
 from profanity_filter.spacy_component import SpacyProfanityFilterComponent
@@ -192,6 +193,20 @@ class ProfanityFilter:
             censor_whole_words=config.censor_whole_words,
             max_relative_distance=config.max_relative_distance,
         )
+
+    @classmethod
+    def from_yaml(cls, path: Union[Path, str]) -> 'ProfanityFilter':
+        yaml = YAML(typ='safe')
+        try:
+            config_dict = yaml.load(open(str(path)))
+        except FileNotFoundError:
+            config_dict = {}
+        if config_dict is None:
+            config_dict = {}
+        if 'analyses' in config_dict:
+            config_dict['analyses'] = [AnalysisType(analysis) for analysis in config_dict['analyses']]
+        config = Config(**config_dict)
+        return cls.from_config(config)
 
     def censor(self, text: str) -> str:
         """Returns text with any profane words censored"""

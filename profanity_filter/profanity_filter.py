@@ -93,8 +93,8 @@ class ProfanityFilter:
                  cache_redis_connection_url: Optional[str] = None,
                  censor_char: str = DEFAULT_CONFIG.censor_char,
                  censor_whole_words: bool = DEFAULT_CONFIG.censor_whole_words,
-                 custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
-                 extra_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
+                 custom_profane_word_dictionaries: ProfaneWordDictionariesAcceptable = None,
+                 extra_profane_word_dictionaries: ProfaneWordDictionariesAcceptable = None,
                  max_relative_distance: float = DEFAULT_CONFIG.max_relative_distance,
                  morphs: Optional[Morphs] = None,
                  nlps: Optional[Nlps] = None,
@@ -113,8 +113,8 @@ class ProfanityFilter:
         self._cache_redis_connection_url: Optional[str] = None
         self._censor_char: str = ''
         self._censor_whole_words: bool = False
-        self._custom_censor_dictionaries: ProfaneWordDictionaries = {}
-        self._extra_censor_dictionaries: ProfaneWordDictionaries = {}
+        self._custom_profane_word_dictionaries: ProfaneWordDictionaries = {}
+        self._extra_profane_word_dictionaries: ProfaneWordDictionaries = {}
         self._languages: Languages = OrderedSet()
         self._max_relative_distance: float = 0.0
         self._morphs: Morphs = {}
@@ -137,15 +137,14 @@ class ProfanityFilter:
         self._censor_dictionaries: ProfaneWordDictionaries = {}
 
         with self._disabled_cache_clearing():
-            # nlps argument is set to {} so that nlps are loaded after clear_cache which loads profane word dictionaries
             self.config(
                 languages=languages,
                 analyses=analyses,
                 cache_redis_connection_url=cache_redis_connection_url,
                 censor_char=censor_char,
                 censor_whole_words=censor_whole_words,
-                custom_censor_dictionaries=custom_censor_dictionaries,
-                extra_censor_dictionaries=extra_censor_dictionaries,
+                custom_profane_word_dictionaries=custom_profane_word_dictionaries,
+                extra_profane_word_dictionaries=extra_profane_word_dictionaries,
                 max_relative_distance=max_relative_distance,
                 morphs=morphs,
                 nlps=nlps,
@@ -161,8 +160,8 @@ class ProfanityFilter:
                cache_redis_connection_url: Optional[str] = DEFAULT_CONFIG.cache_redis_connection_url,
                censor_char: str = DEFAULT_CONFIG.censor_char,
                censor_whole_words: bool = DEFAULT_CONFIG.censor_whole_words,
-               custom_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
-               extra_censor_dictionaries: ProfaneWordDictionariesAcceptable = None,
+               custom_profane_word_dictionaries: ProfaneWordDictionariesAcceptable = None,
+               extra_profane_word_dictionaries: ProfaneWordDictionariesAcceptable = None,
                max_relative_distance: float = DEFAULT_CONFIG.max_relative_distance,
                morphs: Optional[Morphs] = None,
                nlps: Optional[Nlps] = None,
@@ -172,8 +171,8 @@ class ProfanityFilter:
         self.cache_redis_connection_url = cache_redis_connection_url
         self.censor_char = censor_char
         self.censor_whole_words = censor_whole_words
-        self.custom_profane_word_dictionaries = custom_censor_dictionaries
-        self.extra_profane_word_dictionaries = extra_censor_dictionaries
+        self.custom_profane_word_dictionaries = custom_profane_word_dictionaries
+        self.extra_profane_word_dictionaries = extra_profane_word_dictionaries
         self.max_relative_distance = max_relative_distance
         self._set_languages(languages, load_morphs=morphs is None, load_nlps=nlps is None, load_spells=spells is None)
         if morphs is not None:
@@ -275,7 +274,7 @@ class ProfanityFilter:
     @property
     def custom_profane_word_dictionaries(self) -> ProfaneWordDictionaries:
         """If defined, use this instead of _censor_lists"""
-        return self._custom_censor_dictionaries
+        return self._custom_profane_word_dictionaries
 
     @custom_profane_word_dictionaries.setter
     def custom_profane_word_dictionaries(self, value: ProfaneWordDictionariesAcceptable) -> None:
@@ -284,22 +283,22 @@ class ProfanityFilter:
         else:
             value = {language: OrderedSet(custom_censor_dictionary)
                      for language, custom_censor_dictionary in value.items()}
-        self._custom_censor_dictionaries = defaultdict(lambda: OrderedSet(), **value)
+        self._custom_profane_word_dictionaries = defaultdict(lambda: OrderedSet(), **value)
         self.clear_cache()
 
     @property
     def extra_profane_word_dictionaries(self) -> ProfaneWordDictionaries:
         """Words to be used in conjunction with _censor_dictionaries"""
-        return self._extra_censor_dictionaries
+        return self._extra_profane_word_dictionaries
 
     @extra_profane_word_dictionaries.setter
     def extra_profane_word_dictionaries(self, value: ProfaneWordDictionariesAcceptable) -> None:
         if value is None:
             value = {}
         else:
-            value = {language: OrderedSet(extra_censor_dictionary)
-                     for language, extra_censor_dictionary in value.items()}
-        self._extra_censor_dictionaries = defaultdict(lambda: OrderedSet(), **value)
+            value = {language: OrderedSet(extra_profane_word_dictionary)
+                     for language, extra_profane_word_dictionary in value.items()}
+        self._extra_profane_word_dictionaries = defaultdict(lambda: OrderedSet(), **value)
         self.clear_cache()
 
     @property

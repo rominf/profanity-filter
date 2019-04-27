@@ -102,7 +102,7 @@ class ProfanityFilter:
                  ):
         # Path to data dir
         self._BASE_DIR = Path(__file__).absolute().parent
-        self._DATA_DIR = self._BASE_DIR / 'data'
+        self._DATA_DIR: Path = self._BASE_DIR / 'data'
 
         self._MAX_MAX_DISTANCE = 3
 
@@ -119,7 +119,7 @@ class ProfanityFilter:
         self._max_relative_distance: float = 0.0
         self._morphs: Morphs = {}
         self._nlps: Nlps = {}
-        self._profane_word_dictionary_files: Dict[Language, str] = {}
+        self._profane_word_dictionary_files: Dict[Language, Path] = {}
         self._spells: Spells = {}
 
         # For Levenshtein automata
@@ -449,7 +449,7 @@ class ProfanityFilter:
         self._profane_word_dictionary_files = {}
         for language in self.languages:
             profane_word_file = self._DATA_DIR / f'{language}_profane_words.txt'
-            if profane_word_file.exists():
+            if profane_word_file.is_file():
                 self._profane_word_dictionary_files[language] = profane_word_file
         if not self._profane_word_dictionary_files:
             raise ProfanityFilterError(f"Couldn't load profane words for any of languages: {self.languages_str}")
@@ -467,7 +467,7 @@ class ProfanityFilter:
         self._update_profane_word_dictionary_files()
         self._censor_dictionaries = defaultdict(lambda: OrderedSet())
         for language, words_file in self._profane_word_dictionary_files.items():
-            with open(words_file) as f:
+            with open(str(words_file)) as f:
                 self._censor_dictionaries[language] = OrderedSet(line.strip() for line in f.readlines())
 
     def _get_max_distance(self, length: int) -> float:

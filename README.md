@@ -17,6 +17,7 @@
          * [Using as a part of Spacy pipeline](#using-as-a-part-of-spacy-pipeline)
          * [Customizations](#customizations)
          * [Console Executable](#console-executable)
+         * [RESTful web service](#restful-web-service)
       * [Installation](#installation)
          * [Basic installation](#basic-installation)
          * [Deep analysis](#deep-analysis-1)
@@ -24,10 +25,11 @@
             * [Russian language support](#russian-language-support)
                * [Pymorphy2](#pymorphy2)
          * [Multilingual support](#multilingual-support)
+         * [RESTful web service](#restful-web-service-1)
       * [Troubleshooting](#troubleshooting)
       * [Credits](#credits)
 
-<!-- Added by: rominf, at: Пт мар 29 18:06:57 MSK 2019 -->
+<!-- Added by: rominf, at: Сб мая 18 15:06:37 MSK 2019 -->
 
 <!--te-->
 
@@ -44,6 +46,7 @@ words using the Levenshtein automata, ignoring dictionary words, containing prof
 5. Explanation of decisions (attribute `original_profane_word`).
 6. Partial word censoring.
 7. Extensibility support. New languages can be added by supplying dictionaries.
+8. RESTful web service.
 
 ### Caveats
 1. Context-free. The library cannot detect using profane phrases consisted of decent words. Vice versa, the library
@@ -170,6 +173,16 @@ optional arguments:
   --show                Print the censored text
 ```
 
+### RESTful web service
+Run:
+```shell
+$ uvicorn profanity_filter.web:app --reload
+INFO: Uvicorn running on http://127.0.0.1:8000
+...
+```
+
+Go to the `{BASE_URL}/docs` for interactive documentation.
+
 ## Installation
 First two parts of installation instructions are designed for the users who want to filter English profanity.
 If you want to filter profanity in another language you still need to read it.
@@ -257,6 +270,12 @@ $ sudo zypper install libicu-devel
 Then run:
 ```shell
 $ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-multilingual.txt
+```
+
+### RESTful web service
+Run:
+```shell
+$ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-web.txt
 ```
 
 ## Troubleshooting

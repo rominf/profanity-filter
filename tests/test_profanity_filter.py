@@ -2,13 +2,16 @@ import uuid
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+import pytest
 from ordered_set import OrderedSet
 from ruamel.yaml import YAML
 
 from profanity_filter.profanity_filter import ProfanityFilter, DEFAULT_CONFIG
-from profanity_filter.types_ import Word, AnalysisType, Config
-from tests.conftest import create_profane_word_dictionaries, TEST_STATEMENT, CLEAN_STATEMENT, with_config
-from tests.conftest import Config as TestConfig
+from profanity_filter.types_ import Word, AnalysisType
+from profanity_filter.config import Config
+
+from tests.conftest import (create_profane_word_dictionaries, TEST_STATEMENT, CLEAN_STATEMENT, with_config,
+                            Config as TestConfig)
 
 
 def compare_settings(pf0: ProfanityFilter, pf1: ProfanityFilter) -> None:
@@ -27,7 +30,8 @@ def test_from_config():
 
 def test_from_yaml():
     non_existing_path = uuid.uuid4().hex
-    compare_settings(ProfanityFilter(), ProfanityFilter.from_yaml(non_existing_path))
+    with pytest.raises(FileNotFoundError):
+        ProfanityFilter.from_yaml(non_existing_path)
 
     with NamedTemporaryFile() as f:
         compare_settings(ProfanityFilter(), ProfanityFilter.from_yaml(f.name))
@@ -35,7 +39,6 @@ def test_from_yaml():
     with NamedTemporaryFile() as f:
         config = Config(
             analyses=[AnalysisType.DEEP, AnalysisType.MULTILINGUAL],
-            cache_redis_connection_url='redis://',
             censor_char='#',
             censor_whole_words=False,
             languages=['ru', 'en'],

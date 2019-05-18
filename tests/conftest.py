@@ -9,7 +9,8 @@ import spacy.language
 from ordered_set import OrderedSet
 
 from profanity_filter.profanity_filter import ProfanityFilter
-from profanity_filter.types_ import Config, ProfaneWordDictionaries, AnalysesTypes, Language
+from profanity_filter.types_ import ProfaneWordDictionaries, AnalysesTypes, Language
+from profanity_filter import Config
 
 
 @dataclass

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Dict, Collection, Generator, Tuple, List, FrozenSet
+from pathlib import Path
+from typing import Optional, Dict, Collection, Generator, Tuple, List, FrozenSet, Union
 
 import spacy.language
 from cached_property import cached_property
 from hunspell_serializable import HunSpell
-from pydantic import BaseModel
 from pymorphy2 import MorphAnalyzer
 
 
@@ -47,13 +47,4 @@ Morphs = Dict[Language, MorphAnalyzer]
 Spells = Dict[Language, HunSpell]
 Substrings = Generator[Tuple[str, int, int], Tuple[int, int], None]
 TextSplittedByLanguage = List[Tuple[Language, str]]
-
-
-# noinspection PyTypeChecker
-class Config(BaseModel):
-    analyses: List[AnalysisType] = list(AnalysisType)
-    cache_redis_connection_url: Optional[str] = None
-    censor_char: str = '*'
-    censor_whole_words: bool = True
-    languages: List[Language] = ['en']
-    max_relative_distance: float = 0.34
+PathOrStr = Union[Path, str]

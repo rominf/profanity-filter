@@ -17,14 +17,13 @@ from cached_property import cached_property
 from more_itertools import substrings_indexes
 from ordered_set import OrderedSet
 from redis import Redis
-from ruamel.yaml import YAML
 
 from profanity_filter import spacy_utlis
+from profanity_filter.config import Config, DEFAULT_CONFIG
 from profanity_filter.spacy_component import SpacyProfanityFilterComponent
 from profanity_filter.types_ import (Words, Language, ProfaneWordDictionaries, ProfaneWordDictionariesAcceptable,
                                      Languages, LanguagesAcceptable, Nlps, Morphs, Spells, Substrings,
-                                     TextSplittedByLanguage, ProfanityFilterError, Word, Config, AnalysisType,
-                                     AnalysesTypes)
+                                     TextSplittedByLanguage, ProfanityFilterError, Word, AnalysisType, AnalysesTypes)
 
 
 class DummyHunSpell:
@@ -81,7 +80,7 @@ with suppress(ImportError):
 AVAILABLE_ANALYSES: AnalysesTypes = frozenset(_available_analyses_list)
 
 
-DEFAULT_CONFIG = Config()
+APP_NAME = 'profanity-filter'
 __version__ = poetry_version.extract(source_file=__file__)
 
 
@@ -195,17 +194,7 @@ class ProfanityFilter:
 
     @classmethod
     def from_yaml(cls, path: Union[Path, str]) -> 'ProfanityFilter':
-        yaml = YAML(typ='safe')
-        try:
-            config_dict = yaml.load(open(str(path)))
-        except FileNotFoundError:
-            config_dict = {}
-        if config_dict is None:
-            config_dict = {}
-        if 'analyses' in config_dict:
-            config_dict['analyses'] = [AnalysisType(analysis) for analysis in config_dict['analyses']]
-        config = Config(**config_dict)
-        return cls.from_config(config)
+        return cls.from_config(Config.from_yaml(path))
 
     def censor(self, text: str) -> str:
         """Returns text with any profane words censored"""

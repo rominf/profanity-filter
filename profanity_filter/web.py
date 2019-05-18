@@ -8,6 +8,7 @@ from fastapi import FastAPI, Path
 
 from profanity_filter.config import DEFAULT_CONFIG
 from profanity_filter.profanity_filter import ProfanityFilter, APP_NAME
+from profanity_filter.types_ import Word
 
 
 def create_profanity_filter() -> ProfanityFilter:
@@ -22,6 +23,6 @@ app = FastAPI()
 pf = create_profanity_filter()
 
 
-@app.post(path='/censor-word/{word}')
+@app.post(path='/censor-word/{word}', response_model=Word)
 async def censor_word(word: str = Path(..., title='Word to censor', description='Word to censor')):
     return pf.censor_word(word)

@@ -215,7 +215,7 @@ $ sudo zypper install hunspell hunspell-devel
 
 Then run:
 ```shell
-$ pip install -U profanity-filter[deep-analysis]
+$ pip install -U profanity-filter[deep-analysis] git+https://github.com/rominf/hunspell_serializable@49c00fabf94cacf9e6a23a0cd666aac10cb1d491#egg=hunspell_serializable git+https://github.com/rominf/pyffs@6c805fbfd7771727138b169b32484b53c0b0fad1#egg=pyffs
 $ # Skip next lines if you want deep analysis support for another language (will be covered in next section)
 $ cd profanity_filter/data
 $ wget https://cgit.freedesktop.org/libreoffice/dictionaries/plain/en/en_US.aff
@@ -250,7 +250,7 @@ https://cgit.freedesktop.org/libreoffice/dictionaries/plain/:
 For Russian and Ukrainian languages to achieve better results we suggest you to install `pymorphy2`.
 To install `pymorphy2` with Russian dictionary run:
 ```shell
-$ pip install -U profanity-filter[pymorphy2-ru]
+$ pip install -U profanity-filter[pymorphy2-ru] git+https://github.com/kmike/pymorphy2@ca1c13f6998ae2d835bdd5033c17197dcba84cf4#egg=pymorphy2
 ```
 
 ### Multilingual support

@@ -13,7 +13,7 @@ package_data = \
 
 install_requires = \
 ['cached-property>=1.5,<2.0',
- 'more-itertools>=7.0,<8.0',
+ 'more-itertools>=8.0,<9.0',
  'ordered-set-stubs>=0.1.3,<0.2.0',
  'ordered-set>=3.0,<4.0',
  'poetry-version>=0.1.3,<0.2.0',

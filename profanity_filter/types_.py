@@ -3,9 +3,7 @@ from pathlib import Path
 from typing import Optional, Dict, Collection, Generator, Tuple, List, FrozenSet, Union
 
 import spacy.language
-from hunspell_serializable import HunSpell
 from pydantic import BaseModel
-from pymorphy2 import MorphAnalyzer
 
 
 class ProfanityFilterError(Exception):
@@ -41,8 +39,8 @@ ProfaneWordDictionariesAcceptable = Optional[Dict[Language, ProfaneWordDictionar
 Languages = 'OrderedSet[Language]'
 LanguagesAcceptable = Collection[Language]
 Nlps = Dict[Language, spacy.language.Language]
-Morphs = Dict[Language, MorphAnalyzer]
-Spells = Dict[Language, HunSpell]
+Morphs = Dict[Language, 'MorphAnalyzer']
+Spells = Dict[Language, 'HunSpell']
 Substrings = Generator[Tuple[str, int, int], Tuple[int, int], None]
 TextSplittedByLanguage = List[Tuple[Language, str]]
 PathOrStr = Union[Path, str]

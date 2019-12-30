@@ -215,7 +215,7 @@ $ sudo zypper install hunspell hunspell-devel
 
 Then run:
 ```shell
-$ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-deep-analysis.txt
+$ pip install -U profanity-filter[deep-analysis]
 $ # Skip next lines if you want deep analysis support for another language (will be covered in next section)
 $ cd profanity_filter/data
 $ wget https://cgit.freedesktop.org/libreoffice/dictionaries/plain/en/en_US.aff
@@ -250,7 +250,7 @@ https://cgit.freedesktop.org/libreoffice/dictionaries/plain/:
 For Russian and Ukrainian languages to achieve better results we suggest you to install `pymorphy2`.
 To install `pymorphy2` with Russian dictionary run:
 ```shell
-$ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-pymorphy2-ru.txt
+$ pip install -U profanity-filter[pymorphy2-ru]
 ```
 
 ### Multilingual support
@@ -269,13 +269,13 @@ $ sudo zypper install libicu-devel
 
 Then run:
 ```shell
-$ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-multilingual.txt
+$ pip install -U profanity-filter[multilingual]
 ```
 
 ### RESTful web service
 Run:
 ```shell
-$ pip install -U -r https://raw.githubusercontent.com/rominf/profanity-filter/master/requirements-web.txt
+$ pip install -U profanity-filter[web]
 ```
 
 ## Troubleshooting

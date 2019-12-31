@@ -1,3 +1,0 @@
-appdirs==1.4.3
-fastapi==0.22.0
-uvicorn==0.7.1

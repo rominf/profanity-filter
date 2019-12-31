@@ -1,2 +1,0 @@
-git+https://github.com/kmike/pymorphy2@ca1c13f6998ae2d835bdd5033c17197dcba84cf4#egg=pymorphy2
-pymorphy2-dicts-ru==2.4.404381.4453942

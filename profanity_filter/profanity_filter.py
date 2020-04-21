@@ -2,7 +2,6 @@ import re
 from collections import defaultdict
 from contextlib import suppress, contextmanager
 from copy import deepcopy
-from dataclasses import asdict
 from itertools import chain
 from math import floor
 from pathlib import Path
@@ -627,7 +626,7 @@ class ProfanityFilter:
         if self._cache_redis is None:
             self._censored_words[word.uncensored] = word
         else:
-            d = asdict(word)
+            d = dict(word)
             if not word.original_profane_word:
                 d['original_profane_word'] = ''
             self._cache_redis.hmset(word.uncensored, d)
